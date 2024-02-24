@@ -1,0 +1,724 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0025) -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="Description" content="ПЕЧАТЬ ДОКУМЕНТА КНИГОЙ (ТЕТРАДЯМИ) Брошюра Программа по расчету печатных заданий Как распечатать книгу">
+    <meta name="Keywords" content="ПЕЧАТЬ ДОКУМЕНТА КНИГОЙ (ТЕТРАДЯМИ) Брошюра Программа по расчету печатных заданий Как распечатать книгу">
+
+    <title> ПЕЧАТЬ ДОКУМЕНТА КНИГОЙ (ТЕТРАДЯМИ)</title>
+
+    <link id="index_css" rel="stylesheet" type="text/css" href="./i_files/index_v_01.css">
+    <script async="" src="./i_files/tag.js.Без названия"></script><script src="./i_files/index_v_01.js.Без названия" async="" defer="" type="text/javascript"></script>
+
+
+</head>
+
+<body>
+
+<form action="" name="BroshCalc" id="BroshCalc">
+
+    <hr>
+    <!-- Блок Родового древа -->
+
+    <!-- РАССЧЕТНАЯ ТАБЛИЦА-ФОРМА -->
+    <table class="t1" align="center">
+
+        <!-- строка 1 -->
+        <tbody>
+        <tr>
+            <td>
+                <table class="t2">
+                    <tbody>
+                    <tr>
+                        <td valign="top" width="60%">
+                            1.Укажите количество страниц в Вашем документе:
+                        </td>
+                        <td>
+                            <input name="PgNmbr_in" id="PgNmbr_in" size="5" value="0" style="vertical-align:middle; height: 20px; margin-left: 5;" title="Введите кол-во страниц с клавиатуры либо воспользуйтесь стрелками вверх-вниз справа от поля ввода либо воспользуйтесь кнопочным Наборником" onchange="calc_brosh_0()" type="text"><!--
+		
+		--><img src="./i_files/btn_3angle_b_dn.png" id="btn_dn1" name="btn_dn1" class="btn_st1" title="уменьшить" onmouseover="this.style.borderColor=&#39;#ffc0cb&#39;" onmouseout="this.style.borderColor=&#39;white&#39;" onmousedown="txt2nmbr_ch(event, &#39;PgNmbr_in&#39;, this, -1, calc_brosh_0 );" style="border-color: white;"><!--
+		
+		--><img src="./i_files/btn_3angle_b_up.png" id="btn_up1" name="btn_up1" class="btn_st1" title="увеличить" onmouseover="this.style.borderColor=&#39;#ffc0cb&#39;" onmouseout="this.style.borderColor=&#39;white&#39;" onmousedown="txt2nmbr_ch(event, &#39;PgNmbr_in&#39;, this, 1, calc_brosh_0 );">
+
+                        </td>
+
+                        <td>
+                            <table align="right" cellspacing="1" cellpadding="1">
+                                <!-- табличка с кнопками а-ля калькулятор -->
+                                <tbody>
+                                <tr>
+                                    <td align="right">
+                                        <input class="but" name="but1" value=" 1 " onclick="doc_vol_input(1)" type="Button">
+                                        <input class="but" name="but2" value=" 2 " onclick="doc_vol_input(2)" type="Button">
+                                        <input class="but" name="but3" value=" 3 " onclick="doc_vol_input(3)" type="Button">
+                                        <input class="but" name="but4" value=" 4 " onclick="doc_vol_input(4)" type="Button">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td align="right">
+                                        <input class="but" name="but5" value=" 5 " onclick="doc_vol_input(5)" type="Button">
+                                        <input class="but" name="but6" value=" 6 " onclick="doc_vol_input(6)" type="Button">
+                                        <input class="but" name="but7" value=" 7 " onclick="doc_vol_input(7)" type="Button">
+                                        <input class="but" name="but8" value=" 8 " onclick="doc_vol_input(8)" type="Button">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td align="right">
+                                        <input class="but" name="but9" value=" 9 " onclick="doc_vol_input(9)" type="Button">
+                                        <input class="but" name="but0" value=" 0 " onclick="doc_vol_input(0)" type="Button">
+                                        <input class="but" name="butCL" value="←" onclick="doc_vol_input(-1)" title="Удалить один знак справа" type="Button">
+                                        <input class="but" name="butC" value=" C " onclick="doc_vol_input(-2)" title="Очистить поле" type="Button">
+                                    </td>
+                                </tr>
+
+                                </tbody>
+                            </table><!-- табличка с кнопками а-ля калькулятор -->
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <!-- строка 2 -->
+        <tr>
+            <td>
+                <table class="t2">
+                    <tbody>
+                    <tr>
+                        <td valign="top">
+                            2.Укажите, <a href="#scale" title="Кликните для перехода в раздел помощи">сколько
+                                                                                                      Страниц</a>
+                            документа будет размещено на одной печатной странице (на одной стороне печатного листа А4):
+                        </td>
+                        <td width="40%">
+                            <table class="td_b0" width="100%">
+                                <tbody>
+                                <tr>
+                                    <td class="td_b0" width="100px">
+                                        <input name="PgPerSheet_r" checked="checked" onclick="PPSH_ch()" type="radio"> x
+                                                                                                                       2
+                                                                                                                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                                                                       A5
+                                        <br>
+                                        <input name="PgPerSheet_r" onclick="PPSH_ch()" type="radio"> x 4 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                                                                       A6
+                                        <br>
+                                        <input name="PgPerSheet_r" onclick="PPSH_ch()" type="radio"> x 8 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                                                                       A7
+                                    </td>
+                                    <td class="td_b0" width="15px">&nbsp;</td>
+
+                                    <td class="td_b0" align="center" height="80px">
+                                        <img name="ppsh" src="./i_files/2_str_p_p_hs.png" border="0">
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <!-- строка 3 -->
+        <tr>
+            <td>
+                <table class="t2_b0">
+                    <tbody>
+                    <tr>
+                        <td valign="top">
+                            3.<a href="#correct_vol" title="Кликните для перехода в раздел помощи">Корректность объема
+                                                                                                   документа</a> для
+                            печати указанным в п.2 способом:
+                        </td>
+                        <td id="InCorrVal_tab" valign="top" width="40%">Объем Корректный</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <!-- строка 5 -->
+        <tr>
+            <td>
+                <table class="t2_bg1_b0">
+                    <tbody>
+                    <tr>
+                        <td><font size="+3"><b>4.Т О Г Д А :</b></font></td>
+                        <!-- <td>&nbsp;</td> -->
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <!-- строка 6 -->
+        <tr>
+            <td>
+                <table class="t2_bg1">
+                    <tbody>
+                    <tr>
+                        <td align="right">
+                            <font size="+1">Для печати потребуется <font color="#FF0000">листов А4:</font></font>
+                        </td>
+                        <td width="40%">
+                            &nbsp;&nbsp;
+                            <input name="A4sum_in" size="3" readonly="readonly" style="color:red; background:transparent; border:0; font-weight:bold; font-size: 25px;" type="Text">
+                            &nbsp;&nbsp; <font size="+1"><font color="#000080">(всего сгибов:
+                                                                               &nbsp;
+                            <input name="FoldsSum_in" size="3" readonly="readonly" style="color:navy; background:transparent; border:0; font-size:18px;" type="Text">)</font></font>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <!-- строка 7 -->
+        <tr>
+            <td>
+                <table class="t2_bg1">
+                    <tbody>
+                    <tr>
+                        <td valign="top" align="right">
+                            При печати
+                        </td>
+
+                        <td width="40%">
+                            <input name="BroshN_in" id="BroshN_in" size="5" value="0" style="vertical-align:middle; height: 20px; margin-left: 5;" title="Задайте кол-во тетрадей" onchange="calc_brosh_1()" type="text"><!--
+		
+	--><img src="./i_files/btn_3angle_b_dn.png" id="btn_dn1" name="btn_dn1" class="btn_st1" title="уменьшить" onmouseover="this.style.borderColor=&#39;#ffc0cb&#39;" onmouseout="this.style.borderColor=&#39;white&#39;" onmousedown="txt2nmbr_ch(event, &#39;BroshN_in&#39;, this, -1, calc_brosh_1 );"><!--
+		
+	--><img src="./i_files/btn_3angle_b_up.png" id="btn_up1" name="btn_up1" class="btn_st1" title="увеличить" onmouseover="this.style.borderColor=&#39;#ffc0cb&#39;" onmouseout="this.style.borderColor=&#39;white&#39;" onmousedown="txt2nmbr_ch(event, &#39;BroshN_in&#39;, this, 1, calc_brosh_1 );">
+
+                            <a href="#broshures" title="Кликните для перехода в раздел помощи">тетрад(ью/ями)</a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td valign="top" align="right">
+                            по
+                        </td>
+
+                        <td width="40%">
+                            <input name="A4perBrosh_in" id="A4perBrosh_in" size="5" value="0" style="vertical-align:middle; height: 20px; margin-left: 5;" title="Задайте кол-во листов А4 на тетрадь" onchange="calc_brosh_1()" type="text"><!--
+		
+	--><img src="./i_files/btn_3angle_b_dn.png" id="btn_dn1" name="btn_dn1" class="btn_st1" title="уменьшить" onmouseover="this.style.borderColor=&#39;#ffc0cb&#39;" onmouseout="this.style.borderColor=&#39;white&#39;" onmousedown="txt2nmbr_ch(event, &#39;A4perBrosh_in&#39;, this, -1, calc_brosh_1 );"><!--
+		
+	--><img src="./i_files/btn_3angle_b_up.png" id="btn_up1" name="btn_up1" class="btn_st1" title="увеличить" onmouseover="this.style.borderColor=&#39;#ffc0cb&#39;" onmouseout="this.style.borderColor=&#39;white&#39;" onmousedown="txt2nmbr_ch(event, &#39;A4perBrosh_in&#39;, this, 1, calc_brosh_1 );">
+
+                                                                                                                     лист(у/а/ов)
+                                                                                                                     А4
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td valign="top" align="right">
+                            (по
+                        </td>
+
+                        <td width="40%">
+                            &nbsp;&nbsp;
+                            <input name="FoldsPerBrosh_in" size="5" readonly="readonly" style="color:navy; background:transparent; border:0;" type="Text">
+                            <a href="#folds" title="Кликните для перехода в раздел помощи">сгиб(у/а/ов)</a> на тетрадь
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td valign="top" align="right">
+                            &nbsp;
+                        </td>
+
+                        <td width="40%">
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <input name="PgPerBrosh_in" size="5" readonly="readonly" style="color:navy; background:transparent; border:0;" type="Text"> стр. в тетради)
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        <!-- строка 8 -->
+        <tr>
+            <td>
+                <table class="t2_bg1">
+                    <tbody>
+                    <tr>
+                        <td valign="top">
+                            <p align="right">В <a href="#last_broshure" title="Кликните для перехода в раздел помощи">"остатковой"
+                                                                                                                      тетради</a>
+                                             будет
+                            </p></td>
+                        <td width="40%">
+                            <p>
+                                <input name="A4perLastBrosh_in" size="5" value="0" readonly="readonly" style="color:blue; background:transparent; border:0;" type="Text"> лист(у/а/ов)
+                                                                                                          А4
+                            </p></td>
+                    </tr>
+
+                    <tr>
+                        <td valign="top">
+                            <p align="right">
+                            </p></td>
+                        <td width="40%">
+                            <p>
+                                &nbsp;&nbsp;
+                                <input name="FoldsPerLastBrosh_in" size="5" value="0" readonly="readonly" style="color:blue; background:transparent; border:0;" type="Text"> <a href="#folds" title="Кликните для перехода в раздел помощи">сгиб(у/а/ов)</a>
+                            </p></td>
+                    </tr>
+
+                    <tr>
+                        <td valign="top">
+                            <p align="right">
+                            </p></td>
+                        <td width="40%">
+                            <p>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input name="LastBroshPg_in" size="5" value="0" readonly="readonly" style="color:blue; background:transparent; border:0;" type="Text"> стр.
+                            </p></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+
+        </tbody>
+    </table> <!-- РАССЧЕТНАЯ ТАБЛИЦА-ФОРМА -->
+
+
+    <p align="center"><input name="calc_it" value="ПОСЧИТАТЬ" onclick="calc_res()" title="Результат будет выведен ниже этой кнопки" type="Button"> <br><br>
+
+        <!-- ТАБЛИЦА С РУКОВОДСТВОМ -->
+
+    <table id="Tab2" align="center" cellspacing="0" cellpadding="10" bgcolor="#D8D3B1" width="988px" border="0">
+
+
+        <tbody>
+        <tr>
+            <td id="help_cell_a" bgcolor="#CFDFBB">
+
+                <a name="main"></a>
+
+                <h2 style="margin-top: 10px;" align="center">ПЕЧАТЬ ДОКУМЕНТА КНИГОЙ (ТЕТРАДЯМИ). РУКОВОДСТВО.</h2>
+
+                <p class="mainp">
+                    Страничные принтеры формата А4 (лазерные и струйные)
+                    <img src="./i_files/PRN_w512h5121390642719Print.png" align="right" width="200" border="0">
+                    являются сейчас наиболее распространенными.
+                    Но печать документов в таком формате не всегда оптимальна с точки зрения пользования.
+                    Часто более приемлемыми представляются меньшие форматы: А5, А6, А7.
+                    Ну а если при этом документ еще и многостраничный,
+                    то возникает желание получить из него брошюру (тетрадь) либо даже книгу.
+                    Для этого нужно или искать бумагу таких форматов (отдельные листы),
+                    или распечатывать документ в выбранном формате на листах А4,
+                    размещая по несколько страниц меньших форматов на листе,
+                    причем так, чтобы затем согнуть эти листы,
+                    получив практически готовую книгу (тетрадь), пригодную для простой прошивки.
+
+                </p>
+                <p class="mainp">
+                    Самым лучшим представляется использование <b>масштабирования документа при выводе на
+                                                                 печать</b>.
+                    Такую возможность представляют либо драйверы большинства современных принтеров,
+                    либо сами программы-редакторы.
+                    При этом оформление страниц остается таким, каким Вы видите его в редакторе.
+                    Вдобавок к этому можно добиться масштабирования до форматов А6 и А7,
+                    непосредственную печать на которых принтеры могут и не поддерживать.
+                    В данном случае главное - чтобы Ваш редактор позволял задавать на печать
+                    произвольную последовательность страниц документа, а не только диапазон (с такой-то по такую-то
+                    страницу).
+
+                </p>
+                <p class="mainp">
+                    Возникает последняя преграда на пути к распечатке книги:
+                    популярные текстовые процессоры не имеют гибких встроенных средств автоматизации такой печати.
+                    То есть последовательность страниц печатного задания Вам нужно будет задавать вручную,
+                    предварительно ее рассчитав.
+
+                </p></td>
+        </tr><!-- <td id="help_cell_a"> -->
+
+        <tr>
+            <td id="help_cell_b" bgcolor="#CFDFBB">
+
+                <p class="mainp">
+                    Вот здесь и приходит на выручку представленная на этой странице <b>программа по расчету печатных
+                                                                                       заданий</b>.
+
+                </p>
+                <p class="mainp">
+                    В первом пункте Вы должны указать <b>объем Вашего документа</b>.
+                <a name="scale"></a>
+                </p><h3>▶ Масштабирование</h3>
+
+                <p class="mainp">
+                    Далее Вы должны определиться, <b>сколько Страниц документа будет размещено на одной печатной
+                                                     странице</b>
+                    (на одной стороне листа бумаги).
+                    Драйверы большинства принтеров и редакторы позволяют масштабировать (в нашем случае - уменьшать)
+                    печатаемые страницы так, чтобы, к примеру, размещать на одной странице бумаги
+                    стразу 2, 4, 6, 8, 9 или даже 16 уменьшенных страниц документа.
+                    Наиболее практичными представляются варианты по 2, 4 и 8 страниц.</p>
+
+                <table class="td_b0" style="margin: auto;" cellspacing="1" border="0">
+                    <tbody>
+                    <tr>
+                        <td class="td_b0" align="center" width="250"><img src="./i_files/2_str_p_p_nb.gif" alt="" width="140" height="98" border="0"></td>
+                        <td class="td_b0" align="center" width="250"><img src="./i_files/4_str_p_p_nb.gif" alt="" width="98" height="140" border="0"></td>
+                        <td class="td_b0" align="center" width="250"><img src="./i_files/8_str_p_p_nb.gif" alt="" width="140" height="98" border="0"></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <p class="mainp">
+                    При печати на листе A4 (210 x 297 mm) получается:
+
+                    <img src="./i_files/a4-a8_col.jpg" alt="" align="right" width="300" border="0">
+
+                <table class="td_b0" style="margin-left: 130px;" cellspacing="1" border="0">
+                    <tbody>
+                    <tr>
+                        <td class="td_b0" align="left" width="150"><span class="maint">- 2 листа A5</span></td>
+                        <td class="td_b0"><span class="maint">(148 x 210 mm);</span></td>
+                    </tr>
+                    <tr>
+                        <td class="td_b0"><span class="maint">- 4 листа A6</span></td>
+                        <td class="td_b0"><span class="maint">(105 x 148 mm);</span></td>
+                    </tr>
+                    <tr>
+                        <td class="td_b0"><span class="maint">- 8 листов A7</span></td>
+                        <td class="td_b0"><span class="maint">(74 x 105 mm).</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                </p><p class="mainp">
+                Чтобы оценить предполагаемый результат печати,
+                нужно просматривать страницы в указанном ниже масштабе
+                (при условии, что размером бумаги для Вашего документа задан формат А4):
+
+                <table class="td_b0" style="margin-left: 130px;" cellspacing="1" border="0">
+                    <tbody>
+                    <tr>
+                        <td class="td_b0" align="left" width="150"><span class="maint">2 листа A5</span></td>
+                        <td class="td_b0"><span class="maint">71%</span></td>
+                    </tr>
+                    <tr>
+                        <td class="td_b0"><span class="maint">4 листа A6</span></td>
+                        <td class="td_b0"><span class="maint">51%</span></td>
+                    </tr>
+                    <tr>
+                        <td class="td_b0"><span class="maint">8 листов A7</span></td>
+                        <td class="td_b0"><span class="maint">36%</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <a name="folds"></a>
+                </p><h3>▶ Сгибы</h3>
+
+                <p class="mainp">
+                    В зависимости от выбранного в пункте 2 количества страниц, печатаемых на одном листе А4,
+                    из этого листа получается соответственно 1, 2 либо 4 четырехстраничных <b>"листика"-сгиба</b>,
+                    из которых непосредственно и складываются тетради.
+                </p>
+
+                <table class="td_b0" style="margin: auto;" cellspacing="1" border="0">
+                    <tbody>
+                    <tr>
+                        <td class="td_b0" align="center" width="250"><img src="./i_files/2_str_p_p_fd.gif" alt="" width="140" height="98" border="0"></td>
+                        <td class="td_b0" align="center" width="250"><img src="./i_files/4_str_p_p_fd.gif" alt="" width="98" height="140" border="0"></td>
+                        <td class="td_b0" align="center" width="250"><img src="./i_files/8_str_p_p_fd.gif" alt="" width="140" height="98" border="0"></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <a name="correct_vol"></a>
+                <h3>▶ Корректность объема документа</h3>
+
+                <p class="mainp">
+                    При формировании печатного задания очень важно,
+                    чтобы количество страниц в документе было кратным количеству страниц,
+                    распечатываемых на листе (с двух сторон), то есть - 4, 8 и 16.
+                    В противном случае порядок нумерации страниц будет нарушен.
+                    Во избежание подобных сбоев для документов с некорректным объемом предусматривается
+                    использование так называемой <b>"пустой" страницы</b>.
+
+                    <a name="empty_page"></a>
+                </p>
+
+            </td>
+        </tr><!-- <td id="subhelp_cell_1_1"> -->
+
+        </tbody>
+    </table><!-- ТАБЛ. ДОП. ПОМ.: Как создать "Пустую" страницу без колонтитулов?	subhelp_cell_1_1 -->
+
+    <!-- =============================================================================== -->
+    <table id="Tab3" align="center" cellspacing="0" cellpadding="10" bgcolor="#D8D3B1" width="988px" border="0">
+        <tbody>
+        <tr>
+            <td id="help_cell_d" bgcolor="#CFDFBB">
+
+                <h3>▶ Тетради</h3>
+
+                <p class="mainp">
+                    Оптимальный объем тетрадей составляет около 40 страниц (примерно по 8-10 четырехстраничных
+                    листиков-сгибов).
+                    В этом случае листы удобно согнуть, прогладить и скрепить.
+                    Так собирают книги и в типографиях.
+                    Если объем документа существенно больше,
+                    то возникает необходимость распечатать его не одной толстой тетрадью, а несколькими тонкими.
+                    При этом <b>количество тетрадей и их объем можно регулировать</b>,
+                    меняя значения в соответствующих полях четвертого раздела формы.
+
+                    <a name="last_broshure"></a>
+                </p>
+                <p class="mainp">
+                    Когда все исходные данные в форме заданы - нужно нажать на кнопку <span class="h_menu">[ПОСЧИТАТЬ]</span>.
+                    Ниже, под кнопкой, появится <b>РЕЗУЛЬТАТ РАСЧЕТА ПЕЧАТНОГО ЗАДАНИЯ</b> со всеми необходимыми для
+                    печати деталями.
+                    Вам нужно лишь использовать <b>строчки-последовательности</b> для непосредственной печати документа.
+
+
+                    <a name="printing"></a>
+
+                </p>
+            </td>
+        </tr>
+
+        <tr>
+            <td id="help_cell_d_bis1" bgcolor="#CFDFBB">
+
+                <a name="printer_setup"></a>
+                <p align="right">
+                    <span class="subhelp">Как настроить драйвер принтера?</span>:
+                    <input name="s_h_3_1" value="Показать" onclick="sub_help(3,1)" title="Показать раздел по настройке драйвер принтера" type="Button"> |
+                    <input name="s_h_3_d" value="Убрать" onclick="sub_help_delete(3)" title="Убрать раздел расширенной справки" type="Button">
+
+
+                <table width="100%" border="0">
+                    <!-- ТАБЛ. ДОП. ПОМ.: Как настроить драйвер принтера	subhelp_cell_3_1 -->
+
+                    <tbody>
+                    <tr>
+                        <td id="subhelp_cell_3_1" style="background: #99cc99; display: none;">
+
+                            <div style="margin-top: 10pt;"></div>
+
+                            <p class="subhelp_p">
+                                После щелчка по кнопке <span class="h_menu">[Свойства]</span>
+                                в диалоге <span class="h_menu">[Печать]</span>
+                                (см. раздел <a href="#printing" title="К разделу [Печать]">[Печать]</a>)
+                                открывается окно свойств драйвера принтера, указанного в диалоге.
+                                Данное окно может сильно отличаться у разных моделей принтеров.
+
+                                Мы рассмотрим пример модели Canon LASER SHOT LBP-1120.
+
+                            <table class="td_b0" style="margin-left: 30px;" cellspacing="1" border="0">
+                                <tbody>
+                                <tr>
+                                    <td class="td_b0" align="center"><img src="./i_files/canon_lbp-1120_behavior.png" alt="" width="506" height="455" border="0">
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            </p><p class="subhelp_p">
+                            В открывшемся окне <span class="h_menu">[Свойства: Canon LASER SHOT LBP-1120]</span>
+                            нас будет интересовать пункт <span class="h_menu">[Разметка страницы:]</span> (обведен
+                            желтой рамкой).
+                            В выпадающем списке нужно выбрать то же значение, которое Вы указывали и в расчетной форме.
+                            Ниже появится пункт <span class="h_menu">[Порядок страниц:]</span>.
+                            Нужно выбрать вариант <span class="h_menu">[слева направо]</span> при печати 2-х страниц на
+                            листе
+                            и вариант <span class="h_menu">[поперек слева]</span> при печати 4-х и 8-ми страниц на
+                            листе.
+                            Значения пунктов <span class="h_menu">[Размер страницы:]</span>, <span class="h_menu">[Копии:]</span>
+                            и
+                            <span class="h_menu">[Ориентация:]</span> должны совпадать со значениями, приведенными на
+                            рисунках ниже.
+
+                            <table class="td_b0" style="margin-left: 30px;" cellspacing="1" width="700px" border="0">
+                                <tbody>
+                                <tr>
+                                    <td class="td_b0" align="left"><img src="./i_files/canon_lbp-1120_behavior_2_ppsh.png" alt="" width="506" height="455" border="0"></td>
+                                </tr>
+                                <tr>
+                                    <td class="td_b0" align="center"><img src="./i_files/canon_lbp-1120_behavior_4_ppsh.png" alt="" width="506" height="455" border="0"></td>
+                                </tr>
+                                <tr>
+                                    <td class="td_b0" align="right"><img src="./i_files/canon_lbp-1120_behavior_8_ppsh.png" alt="" width="506" height="455" border="0"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            </p><p class="subhelp_p">
+                            Обратите внимание, что параметры, указанные в окне свойств драйвера принтера,
+                            остаются актуальными до закрытия редактора либо до последующего их изменения.
+
+                        </p>
+                            <p style="margin: 3px; vertical-align: bottom;" align="right">
+                                <a href="#printer_setup" title="К разделу [Настройка драйвера принтера]">К разделу
+                                                                                                         [Настройка
+                                                                                                         драйвера
+                                                                                                         принтера]</a>
+                                <input name="s_h_3_d2" value="Убрать" onclick="scroll_me_up (3,1); sub_help_delete(3)" title="Убрать раздел расширенной справки" type="Button"> |
+                                <input name="s_h_3_d1" value="Вверх" onclick="scroll_me_up (3,1)" title="К началу раздела расширенной справки" type="Button">
+
+                            </p></td>
+                    </tr><!-- <td id="subhelp_cell_3_1"> Настройка драйвера принтера -->
+
+                    </tbody>
+                </table>    <!-- ТАБЛ. ДОП. ПОМ.: Как настроить драйвер принтера	subhelp_cell_3_1 -->
+
+                </p></td>
+        </tr><!-- <td id="help_cell_d_bis1"> printer_setup -->
+
+             <!-- ======================================================================================== -->
+
+        <tr>
+            <td id="help_cell_e" bgcolor="#CFDFBB">
+
+                <a name="print_backside"></a>
+                <h3>▶ Печать обратной стороны листов</h3>
+
+                <p class="mainp">
+                    Будьте внимательны при печати обратной стороны листов!
+
+                    Принтеры различаются по способу загрузки и вывода отпечатанных листов:
+                    <b>"лицом" вверх</b> и <b>"лицом" вниз</b>. <br>
+                </p>
+                <li class="li_in_p">Самый простой способ - загрузка и вывод листов "лицом" вверх,
+                                    - когда бумага подается той стороной вверх, на которой будет производиться печать,
+                                    и выходит из принтера той стороной вверх, на которой сейчас произведена печать.
+                                    Так работает большинство струйных принтеров. <br>
+                </li>
+                <li class="li_in_p">Второй способ (наиболее распространенный среди лазерных принтеров)
+                                    - загрузка "лицом" вверх, вывод "лицом" вниз.
+                                    При этом пользователю не виден результат сразу при печати. <br>
+                </li>
+                <li class="li_in_p">Третий способ - загрузка "лицом" вниз, вывод "лицом" вверх.
+                                    При этом можно видеть результат печати по мере выхода листов.<br>
+                </li>
+                <li class="li_in_p">Есть модели, позволяющие переключать выходной поток листов в одно из этих положений.
+                    <br><br>
+
+                    <table class="td_b0" style="margin: auto;" cellspacing="1" width="800px" border="0">
+                        <tbody>
+                        <tr>
+                            <td class="td_b0" align="center" width="360">
+                                <font size="+1">Печать <b>"лицом"</b> (напечатанным) <b>вверх</b></font><br>
+                                <img src="./i_files/face_up.gif" alt="" width="150" border="0">
+                            </td>
+                            <td class="td_b0" valign="top" align="center" width="80">
+                                <font size="+1">и</font></td>
+                            <td class="td_b0" align="center" width="360">
+                                <font size="+1"><b>"лицом" вниз</b></font><br>
+                                <img src="./i_files/face_down.gif" alt="" width="150" border="0">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <br><br>
+
+                    <table class="td_b0" style="margin: auto;" cellspacing="1" width="800px" border="0">
+                        <tbody>
+                        <tr>
+                            <td class="td_b0" align="center"><b>Принтеры с загрузкой и печатью "лицом" вверх</b></td>
+                            <td class="td_b0" align="center"><b>Принтеры, имеющие переключатель "вверх/вниз"</b></td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_b0" align="left"><img src="./i_files/PRN_face_up_i_011.jpg" alt="" height="300" border="0"></td>
+                            <td class="td_b0" align="center"><img src="./i_files/prn_face_up_n_down__head_n_foot.gif" alt="" height="250" border="0"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_b0" colspan="2" align="center"><br><b>Принтеры с загрузкой "лицом" вверх и
+                                                                                печатью "лицом" вниз</b></td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_b0" align="center"><img src="./i_files/PRN_face_down_1345687.jpg" alt="" height="300" border="0">
+                            </td>
+                            <td class="td_b0" align="center"><img src="./i_files/PRN_face_down_30016432b.jpg" alt="" height="300" border="0">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_b0" colspan="2" align="center"><br><b>Принтеры с загрузкой "лицом" вниз и
+                                                                                печатью "лицом" вверх</b></td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_b0" colspan="2" align="center"><img src="./i_files/PRN_face_up_3.jpg" alt="" height="300" border="0"></td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+                                    Соответственно, когда после печати передней стороны (аверса)
+                                    листы тетради переворачиваются для подачи на печать тыльной стороны (реверса),
+                                    порядок листов может быть либо от первого до последнего листа (<i>подача и печать
+                                                                                                      "лицом" вверх</i>),
+                                    либо от последнего до первого
+                                    (<i>подача "лицом" вверх и печать "лицом" вниз</i>, <i>подача "лицом" вниз и печать
+                                                                                           "лицом" вверх</i>).
+
+                                    В первом случае используйте рассчитанные последовательности <span class="h_rez">[Сторона 2 (реверс)]</span>,
+                                    во втором - <span class="h_rez">[Сторона 2 (реверс) с обратным порядком листов]</span>
+
+
+                    <p class="mainp">
+                        При печати тыльной стороны (реверса) в режимах по 2 и по 8 страниц
+                        - бумагу подавайте <b>"ногами" вперед</b> (<i>той стороной, которая вышла из принтера в
+                                                                      конце</i>).<br>
+
+                        При печати тыльной стороны (реверса) в режиме по 4 страницы
+                        - бумагу подавайте <b>"головой" вперед</b> (<i>той стороной, которая вышла из принтера
+                                                                       вначале</i>).
+
+                        <a name="practical_counsel"></a>
+                    </p>
+                </li>
+
+                <h3>▶ Полезные советы</h3>
+
+                <p class="mainp">
+                    При подготовке документа к печати обратите внимание на поля в документе.
+                    Если выбран обычный режим, а левое и правое поле не равны,
+                    то при сгибании листов в тетради текст будет выглядеть сдвинуто.
+                    Предпочтительно делать эти поля равными либо выбрать режим "Зеркальные поля"
+                    и необходимую разницу полей задать в поле "переплет".
+                    Не забывайте, что при масштабировании будут уменьшаться и внутренние поля,
+                    что может лишить Вас пространства для сшивания.
+
+                <table class="td_b0" style="margin: auto;" cellspacing="1" width="800px" border="0">
+                    <tbody>
+                    <tr>
+                        <td class="td_b0" align="center"><img src="./i_files/word_page_settings.png" alt="" width="450" height="543" border="0"><br><br>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="td_b0" align="center"><img src="./i_files/word_page_settings_mirr_margins.png" alt="" width="450" height="543" border="0">
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </p></td>
+        </tr><!-- <td id="help_cell_e"> -->
+        </tbody>
+    </table>    <!-- ТАБЛИЦА С РУКОВОДСТВОМ id="Tab2" -->
+    </p></form>
+
+</body></html>

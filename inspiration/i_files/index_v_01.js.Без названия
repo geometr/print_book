@@ -1,0 +1,608 @@
+// Переменные из оригинального проекта на VBA-Word
+var PgNmbr = 1, BroshN, BroshNmax // Кол.стр.в док., Кол.Брошюр, Кол.Брошюр макс
+var PgPerSheet = 2, FoldsPerA4 // Стр. на Лист (с одной строны), Сгибов("листиков") на А4
+var FoldsPerBrosh, FoldsPerLastBrosh // Сгибов("листиков") на Брошюру и на Последню Брошюру
+var A4sum // Листов А4 всего
+var A4perBrosh, PgPerBrosh, Ostatok // Листов бумаги на Брошюру, Стр. на Брошюру, Недостающее кол.стр. для кратности
+var PgNmbrOpt, LastBroshN // Оптимальное (требуемое) кол.стр. для кратности, Номер последней Брошюры
+var A4perLastBrosh, LastBroshPg // Листов бумаги на последнюю Брошюру, Стр. на последнюю Брошюру
+var AddPgsToEnd //As Boolean ' Признак необходимости добавления страниц в конец документа
+var FinPgAdded //As Boolean ' Признак того, что "пустая" страница в конец документа добавлена
+var PaginalPrn //As Boolean ' Признак Постраничной Печати
+var InCorrDocVol //As Boolean ' Признак НеКорректного для печати Объема Документа
+
+var PrnDistrU = [] //Public PrnDistrU(1 To 1024, 1 To 1024, 1 To 16, 1 To 4) As Integer
+//' PrnDistrU = PrintingDistributionUniversal - Нов. основной массив с раскладом страничек 23.09.2014
+//' PrnDistrU(индекс брошюры, индекс листа А4, индекс "листа"-сгиба (4 стр), индекс страниц на "листе"-сгибе (аверс лев. и прав., реверс лев. и прав.))
+var PagesStrCom = [] //Public PagesStrCom(1 To 255, 1 To 2) As String
+//' PagesStrCom - массив строк, содержащих последовательности номеров страниц для печати
+//' PagesStrCom(номер брошюры, 1=аверс/2=реверс) - Строки для печати целых Брошюр
+var PagesStrComU = [] //Public PagesStrComU(1 To 255, 1 To 255, 1 To 2) As String
+//' PagesStrComUniversal - массив строк, содержащих последовательности номеров страниц для печати
+//' PagesStrComU(номер брошюры, номер листа А4, 1=аверс/2=реверс) -  Строки для печати отдельных А4
+
+// Переменные для текущего проекта на JavaScript
+var tx0 = "";
+var tx1 = '<font color="#FF0000"><b>Объем НЕКОРРЕКТНЫЙ !</b><br>'
+var tx2 = "Необходимо добавить еще <b>";
+var tx3 = "</b> стр.<br>";
+var tx4 = "чтобы было <b>";
+var tx4a = '</b></font>'
+var tx5 = "Объем Корректный";
+
+
+var tab2_obj // Переменная для объекта Tab2 - таблица с Руководством и Рассчетом ! НЕ совсем так получилось!
+
+var result_cell // Переменные для вставки ячейки с Результирующим Рассчетом
+var result_cell_created = false
+var tx_rez = ''
+
+// Переменные для вставки ячеек с расширенной помощью
+// 		Если добавятся разделы расш. помощи - нужно будет добавить эл-ты в массивы
+var sub_cell = [];
+
+var sub_cell_created = []; // - нужно будет добавить эл-ты в массив
+sub_cell_created[1] = false; // Борьба с колонтитулами
+sub_cell_created[2] = false; // Печать
+sub_cell_created[3] = false; // Как настроить драйвер принтера
+sub_cell_created[4] = false; // Как настроить системы безопасности для запуска шаблона с макросами
+sub_cell_created[5] = false; // Как импортировать в общий шаблон Word модуль и форму
+
+var sub_cell_act = []; // - нужно будет добавить эл-ты в массив
+sub_cell_act[1] = 0;
+sub_cell_act[2] = 0;
+sub_cell_act[3] = 0;
+sub_cell_act[4] = 0;
+sub_cell_act[5] = 0;
+
+var sub_cell_ID = []; // - нужно будет добавить эл-ты в массив НИЖЕ
+sub_cell_ID[1] = ['', 'subhelp_cell_1_1', 'subhelp_cell_1_2', 'subhelp_cell_1_3'];
+sub_cell_ID[2] = ['', 'subhelp_cell_2_1', 'subhelp_cell_2_2', 'subhelp_cell_2_3'];
+sub_cell_ID[3] = ['', 'subhelp_cell_3_1'];
+sub_cell_ID[4] = ['', 'subhelp_cell_4_1', 'subhelp_cell_4_2'];
+sub_cell_ID[5] = ['', 'subhelp_cell_5_1'];
+
+
+var divisible_by = PgPerSheet * 2; // Рассчитываем, какой величине д.быть кратный Объем документа
+var FoldsSum, FoldsOpt = 10 // Сгибов всего, Сгибов на Брошюру Оптимально
+
+var PgNmbr_min = 0, PgNmbr_max = 9999 // ограничения по вводу значений
+
+
+// 		ФУНКЦИИ 		=====================================================
+
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    set_bottom();
+});
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function result_cell_delete() {
+    if (result_cell_created) { // Если ячейка с результатами расчетов в Таблице 2 создана - удалим ее
+        document.getElementById('Tab2').deleteRow(0)
+        result_cell_created = false
+    } // if (result_cell_created)
+} // function result_cell_delete()
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function calc_out() {	// Выводим рассчитанные значения в текстовые поля
+    document.BroshCalc.BroshN_in.value = BroshN
+    document.BroshCalc.A4perBrosh_in.value = A4perBrosh
+    document.BroshCalc.FoldsPerBrosh_in.value = FoldsPerBrosh
+    document.BroshCalc.PgPerBrosh_in.value = PgPerBrosh
+
+    document.BroshCalc.A4perLastBrosh_in.value = A4perLastBrosh
+    document.BroshCalc.FoldsPerLastBrosh_in.value = FoldsPerLastBrosh
+    document.BroshCalc.LastBroshPg_in.value = LastBroshPg
+} // function calc_out()
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function calc_brosh_0() { 	/*Функция calc_brosh_0() используется для просчета значений полей формы
+	при вводе ПЕРВИЧНЫХ ДАННЫХ: Количества страниц в документе PgNmbr (п.1)
+	и выборе количества страниц документа на печатной странице PgPerSheet (п.2) */
+
+    result_cell_delete() // Если ячейка с результатами расчетов в Таблице 2 создана - удалим ее
+
+    PgNmbr = +document.BroshCalc.PgNmbr_in.value; // Считываем объем нашего Документа из поля ввода
+// ДЗ (ДуракоЗащита): если ввели нереальные значения
+    if (PgNmbr < PgNmbr_min) {
+        PgNmbr = PgNmbr_min;
+        document.BroshCalc.PgNmbr_in.value = PgNmbr_min;
+    }
+    if (PgNmbr > PgNmbr_max) {
+        PgNmbr = PgNmbr_max;
+        document.BroshCalc.PgNmbr_in.value = PgNmbr_max;
+    }
+
+    divisible_by = PgPerSheet * 2; // Определяем, чему должен быть кратен объем нашего Док, чтоб быть корректным
+
+    if ((PgNmbr % divisible_by) == 0) { // Если объем корректный
+        InCorrDocVol = false;
+        PgNmbrOpt = PgNmbr;
+        tx0 = tx5
+    } // if ((PgNmbr % divisible_by)==0)
+    else {
+        InCorrDocVol = true;
+        PgNmbrOpt = Math.ceil(PgNmbr / divisible_by) * divisible_by; // Если объем НЕ корректный
+        Ostatok = PgNmbrOpt - PgNmbr;
+        tx0 = tx1 + tx2 + Ostatok + tx3 + tx4 + PgNmbrOpt + tx3 + tx4a
+    } // else - if ((PgNmbr % divisible_by)==0)
+
+    document.getElementById("InCorrVal_tab").innerHTML = tx0 // Сообщаем - корректный ли объем Док, если нет - сколько н.добавить.
+
+    A4sum = PgNmbrOpt / divisible_by // Нужно листов А4
+    document.BroshCalc.A4sum_in.value = A4sum
+    BroshNmax = A4sum // max значение Крутилки BroshN - Кол.Брошюр
+    FoldsPerA4 = PgPerSheet / 2
+    FoldsSum = A4sum * FoldsPerA4 // Всего сгибов в документе
+    document.BroshCalc.FoldsSum_in.value = FoldsSum
+
+    if (FoldsSum < 17) {
+        BroshN = 1
+        FoldsPerBrosh = FoldsSum
+        A4perBrosh = A4sum
+        PgPerBrosh = PgNmbrOpt
+
+        LastBroshN = 0
+        FoldsPerLastBrosh = 0
+        A4perLastBrosh = 0
+        LastBroshPg = 0
+    } // if (FoldsSum < 17)
+
+    else {
+        FoldsPerBrosh = FoldsOpt
+        BroshN = Math.floor(FoldsSum / FoldsOpt) // Округляем в меньшую сторону рез. деления
+        A4perBrosh = FoldsPerBrosh / FoldsPerA4
+        PgPerBrosh = A4perBrosh * PgPerSheet * 2
+
+        // Обсчитываем остатковую тетрадку
+        A4perLastBrosh = A4sum - (A4perBrosh * BroshN)
+
+        if (A4perLastBrosh > 0) {
+            LastBroshN = BroshN + 1
+            FoldsPerLastBrosh = A4perLastBrosh * FoldsPerA4
+            LastBroshPg = A4perLastBrosh * PgPerSheet * 2
+        } // if (A4perLastBrosh > 0)
+
+        else {
+            LastBroshN = 0
+            FoldsPerLastBrosh = 0
+            A4perLastBrosh = 0
+            LastBroshPg = 0
+        } // else (A4perLastBrosh > 0)
+
+    } // else - if (FoldsSum < 17)
+
+    calc_out() // Выводим рассчитанные значения в текстовые поля
+
+} // function calc_brosh_0()
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function calc_brosh_1() { 	/* Функция calc_brosh_1() используется для просчета значений полей формы
+	при изменении значений полей [При печати Х тетрадками] - BroshN и [по У листов А4] - A4perBrosh (п.4) */
+
+    result_cell_delete() // Если ячейка с результатами расчетов в Таблице 2 создана - удалим ее
+
+    BroshN_cur = +document.BroshCalc.BroshN_in.value // Берем текущие (_current) значения полей
+    A4perBrosh_cur = +document.BroshCalc.A4perBrosh_in.value
+
+    // Обсчитываем остатковую тетрадку
+    A4perLastBrosh = A4sum - (A4perBrosh_cur * BroshN_cur)
+
+    if (BroshN != BroshN_cur) {// Если ввели значение BroshN
+        if ((BroshN_cur > 0) && (BroshN_cur <= BroshNmax)) { // Если значение BroshN корректно
+            BroshN = BroshN_cur
+            if (A4perLastBrosh < 0) { // Если образовалась фигня - пересчитаем к норм. значениям
+                A4perBrosh = Math.floor(A4sum / BroshN)
+            } // if (A4perLastBrosh < 0)
+        } // if ((BroshN_cur > 0) && (BroshN_cur <= BroshNmax))
+    } // if (BroshN != BroshN_cur)
+
+    else {// Если ввели значение A4perBrosh
+        if ((A4perBrosh_cur > 0) && (A4perBrosh_cur <= A4sum)) // Если значение A4perBrosh корректно
+        {
+            A4perBrosh = A4perBrosh_cur
+            if (A4perLastBrosh < 0) { // Если образовалась фигня - пересчитаем к норм. значениям
+                BroshN = Math.floor(A4sum / A4perBrosh)
+            } // if (A4perLastBrosh < 0)
+        } // if ((A4perBrosh_cur > 0) && (A4perBrosh_cur <= A4sum))
+    }  // else - if (BroshN != BroshN_cur)
+
+    FoldsPerBrosh = A4perBrosh * FoldsPerA4
+    PgPerBrosh = A4perBrosh * FoldsPerA4 * 4
+
+    A4perLastBrosh = A4sum - (A4perBrosh * BroshN)
+    LastBroshN = (A4perLastBrosh > 0) ? BroshN + 1 : 0;
+    FoldsPerLastBrosh = A4perLastBrosh * FoldsPerA4
+    LastBroshPg = A4perLastBrosh * PgPerSheet * 2
+
+    calc_out()
+
+} // function calc_brosh_1()
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function PPSH_ch() { // function PPSH_ch() - Pages per Sheet
+
+    if (document.BroshCalc.PgPerSheet_r[0].checked) {
+        PgPerSheet = 2;
+        FoldsOpt = 10;
+        document.ppsh.src = './../images/print/2_str_p_p_hs.png'
+    } // if (BroshCalc.PgPerSheet.value == 2)
+
+    if (document.BroshCalc.PgPerSheet_r[1].checked) {
+        PgPerSheet = 4;
+        FoldsOpt = 10;
+        document.ppsh.src = './../images/print/4_str_p_p_hs.png'
+    } // if (BroshCalc.PgPerSheet.value == 4)
+
+    if (document.BroshCalc.PgPerSheet_r[2].checked) {
+        PgPerSheet = 8;
+        FoldsOpt = 8;
+        document.ppsh.src = './../images/print/8_str_p_p_hs.png'
+    } // if (BroshCalc.PgPerSheet.value == 8)
+
+    calc_brosh_0();
+
+} // function PPSH_ch()
+
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function FinPgAdded_ch() { // funct FinPgAdded_ch Присваивает значение чекбокса FinPgAdded_ch_bx переменной FinPgAdded
+    FinPgAdded = document.BroshCalc.FinPgAdded_ch_bx.checked; // Определяем, добавлена ли "пустая" страница
+}  // funct FinPgAdded_ch
+
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function reckon() { // function reckon() - расчет основных массивов
+
+//' Сначала сформируем основной массив ***
+
+    i1m = (LastBroshN > 0) ? LastBroshN : BroshN; // i1m - i1 max
+
+    for (var i1 = 1; i1 <= i1m; i1++) {
+        VolOfAnteriorBrosh = (i1 - 1) * PgPerBrosh // Объем Предыдущих Брошюр (стр.)
+        PrnDistrU [i1] = new Array()
+
+        j1m = (LastBroshN > 0 && i1 == i1m) ? A4perLastBrosh : A4perBrosh; // j1m - j1 max
+        for (var j1 = 1; j1 <= j1m; j1++) {
+            PrnDistrU [i1][j1] = new Array()
+
+            for (var j2 = 1; j2 <= FoldsPerA4; j2++) {
+                PrnDistrU [i1][j1][j2] = new Array()
+
+                j = j2 + (j1 - 1) * FoldsPerA4 //' номер сгиба в брошюре
+
+                PgPerBroshCr = (LastBroshN > 0 && i1 == i1m) ? LastBroshPg : PgPerBrosh; // PgPerBroshCr - PgPerBrosh Current
+
+                PrnDistrU [i1][j1][j2][1] = PgPerBroshCr - ((j - 1) * 2) + VolOfAnteriorBrosh
+                PrnDistrU [i1][j1][j2][2] = 1 + ((j - 1) * 2) + VolOfAnteriorBrosh
+                PrnDistrU [i1][j1][j2][3] = 2 + ((j - 1) * 2) + VolOfAnteriorBrosh
+                PrnDistrU [i1][j1][j2][4] = PgPerBroshCr - 1 - ((j - 1) * 2) + VolOfAnteriorBrosh
+
+                for (var k1 = 1; k1 <= 4; k1++) {
+                    if (PrnDistrU [i1][j1][j2][k1] > PgNmbr) {
+                        PrnDistrU [i1][j1][j2][k1] = PgNmbr;
+                        //' Если вычисленные номера больше количества страниц,
+                        //' то заменяем их на номер "Пустой" последней страницы
+                    } // If (PrnDistrU PrnDistrU [i1][j1][j2][k1] > PgNmbr)
+                } // for (var k1 = 1; k1 <= 4; k1++)
+            } // for (var j2 = 1; j2 <= FoldsPerA4; j2++)
+        } // for (var j1 = 1; j1 <= A4perBrosh; j1++)
+    } // for (var i1 = 1; i <= BroshN; i++)
+
+//' Теперь подготовим строчки-последовательности для печати
+
+    for (var i1 = 1; i1 <= i1m; i1++) {
+        PagesStrComU [i1] = new Array()
+
+        PagesStrCom [i1] = new Array()
+        PagesStrCom [i1][1] = ''
+        PagesStrCom [i1][2] = ''
+        PagesStrCom [i1][3] = '' // Та же обратная сторона, только листы подаются в обратном порядке
+
+        j1m = (LastBroshN > 0 && i1 == i1m) ? A4perLastBrosh : A4perBrosh; // j1m - j1 max
+        for (var j1 = 1; j1 <= j1m; j1++) {
+            PagesStrComU [i1][j1] = new Array()
+            PagesStrComU [i1][j1][1] = ''
+            PagesStrComU [i1][j1][2] = ''
+
+            for (var j2 = 1; j2 <= FoldsPerA4; j2++) {
+                PagesStrComU [i1][j1][1] += PrnDistrU [i1][j1][j2][1] + ',' + PrnDistrU [i1][j1][j2][2]
+
+                if (PgPerSheet == 8) { //' Если печатаем по 8 стр на лист - на обратной стороне - обратный порядок
+                    if ((j2 % 2) == 0) { //' j2 - четное
+                        PagesStrComU [i1][j1][2] += PrnDistrU [i1][j1][j2 - 1][3] + ',' + PrnDistrU [i1][j1][j2 - 1][4]
+                    } // if ((j2 % 2) == 0) { //' j2 - четное
+                    else { // j2 - нечетное
+                        PagesStrComU [i1][j1][2] += PrnDistrU [i1][j1][j2 + 1][3] + ',' + PrnDistrU [i1][j1][j2 + 1][4]
+                    } // else - if ((j2 % 2) == 0) { //' j2 - четное
+                } // if (PgPerSheet == 8)
+
+                else { //' Если печатаем по 2 или 4 стр на лист
+                    PagesStrComU [i1][j1][2] += PrnDistrU [i1][j1][j2][3] + ',' + PrnDistrU [i1][j1][j2][4]
+                } // else - if (PgPerSheet == 8)
+
+                if (j2 < FoldsPerA4) {
+                    PagesStrComU [i1][j1][1] += ',';
+                    PagesStrComU [i1][j1][2] += ','
+                }
+
+            } // for (var j2 = 1; j2 <= FoldsPerA4; j2++)
+
+            PagesStrCom [i1][1] += PagesStrComU [i1][j1][1]
+            PagesStrCom [i1][2] += PagesStrComU [i1][j1][2]
+
+            if (j1 < j1m) {
+                PagesStrCom [i1][1] += ',';
+                PagesStrCom [i1][2] += ','
+            }
+
+        } // for (var j1 = 1; j1 <= A4perBrosh; j1++)
+
+        for (var j1 = j1m; j1 >= 1; j1--) { // Сборка реверса в обратном порядке листов
+            PagesStrCom [i1][3] += PagesStrComU [i1][j1][2]
+            if (j1 > 1) {
+                PagesStrCom [i1][3] += ','
+            }
+        } // for (var j1 = A4perBrosh; j1 >= 1; j1--)
+
+    } // for (var i1 = 1; i <= BroshN; i++) - ДЛЯ PagesStrComU
+
+
+//' А теперь уже начнем печать
+    tx_rez = '<hr size="2" color="#800080">'
+    tx_em_s = "<span class='pg_str' title='Выделите текст на белом фоне - БЕЗ Пробелов в начале и в конце! Скопируйте в буфер [Ctrl+C]. Вставьте в окне Печать &rarr; Страницы &rarr; &bull;&nbsp;Номера [Ctrl+V]'>&nbsp;"
+    tx_em_f = "&nbsp;</span>"
+
+    i1m = (LastBroshN > 0) ? LastBroshN : BroshN;
+    for (var i1 = 1; i1 <= i1m; i1++) {
+        tx_h_tail = (LastBroshN > 0 && i1 == i1m) ? ' ========= О С Т А Т К И =====================' : ' ====================================';
+        tx_rez += '<p><font size="+1"><b>ТЕТРАДЬ ' + i1 + '</b></font>' + tx_h_tail
+        tx_rez += "<p>&nbsp;&nbsp; Сторона 1 (аверс): " + tx_em_s + PagesStrCom [i1][1] + tx_em_f
+        tx_rez += "<p>&nbsp;&nbsp; &nbsp;&nbsp; Сторона 2 (реверс): " + tx_em_s + PagesStrCom [i1][2] + tx_em_f
+        tx_rez += "<p>&nbsp;&nbsp; &nbsp;&nbsp; Сторона 2 (реверс) <a href='#print_backside' title='Переход к разделу Руководства - Печать обратной стороны листов'>с обратным порядком листов</a>: " + tx_em_s + PagesStrCom [i1][3] + tx_em_f
+        tx_rez += '<p>&nbsp;&nbsp;Полистовой расклад:'
+
+        tx_rez += '<table cellspacing=0 cellpadding=2 border=1><th align="right" width="60">лист</th><th width=15>&nbsp;</th><th>аверс</th><th width=15>&nbsp;</th><th>реверс</th>'
+
+        k1m = (LastBroshN > 0 && i1 == i1m) ? A4perLastBrosh : A4perBrosh;
+        for (var k1 = 1; k1 <= k1m; k1++) {
+            tx_rez += '<tr>'
+            tx_rez += '<td align="right">' + k1 + '</td><td>&nbsp;</td>'
+            tx_rez += '<td>' + PagesStrComU [i1][k1][1] + '</td><td>&nbsp;</td><td>' + PagesStrComU [i1][k1][2] + '</td>'
+            tx_rez += '</tr>'
+        } // for (var k1 = 1; k1 <= A4perBrosh; k1++)
+        tx_rez += '</table>'
+    } // for (var i1 = 1; i <= BroshN; i++) - ДЛЯ tx_rez
+
+} // function reckon()
+
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function calc_res() { // function calc_res()
+    /*Функция используется для расчета печатного задания
+    на основании указанных в форме параметров */
+
+    tx_lw = '<h2 align="center">РЕЗУЛЬТАТ РАСЧЕТА ПЕЧАТНОГО ЗАДАНИЯ</h2>'
+    tx_lw += '<font size="+1" color="#ff0000">Прежде чем приступить к печати, проверьте:<br>'
+    tx_lw += ' - Не забыли ли Вы выставить правильные параметры драйвера принтера?<br>'
+    tx_lw += ' (по 2/4/8 стр на лист, качество печати и т.п.)</font><br>'
+    tx_lw += '<hr size="2" color="#800080">'
+
+    tx00 = "<p><b>Печать документа</b> объемом <b>" + PgNmbr + "</b> стр."
+    tx00 += "<p>по <b>" + PgPerSheet + "</b> стр. док. на печатной странице"
+    tx00 += '<p><font size="+1">Для печати потребуется <font color="#FF0000">листов А4: <b>' + A4sum + '</b></font>'
+    tx00 += '&nbsp;&nbsp; <font color="#000080">Всего сгибов: <b>' + FoldsSum + '</b></font></font>'
+    tx00 += '<p>При печати <b>' + BroshN + '</b> тетрадк(ой/ами)<br>'
+    tx00 += '&nbsp;&nbsp; по <b>' + A4perBrosh + '</b> лист(у/а/ов) А4<br>'
+    tx00 += '&nbsp;&nbsp; &nbsp;&nbsp; (по <b>' + FoldsPerBrosh + '</b> сгибов на тетрадь<br>'
+    tx00 += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  <b>' + PgPerBrosh + '</b> страниц в тетради)'
+
+    tx00n = '<p>В "остатковой" тетрадке будет <b>' + A4perLastBrosh + '</b> листов А4<br>'
+    tx00n += '&nbsp;&nbsp; <b>' + FoldsPerLastBrosh + '</b> сгибов<br>'
+    tx00n += '&nbsp;&nbsp;&nbsp;&nbsp; <b>' + LastBroshPg + '</b> стр.<br>'
+
+    tx01 = ""
+
+    reckon() // Вызываем функцию reckon() для обсчета осн. массивов
+
+    if (InCorrDocVol) { // if InCorrDocVol - Если некорр. объем
+        if (FinPgAdded) { // if FinPgAdded - Если пустая стр добавлена
+            tx01 = tx_lw + tx00
+            if (A4perLastBrosh > 0) {
+                tx01 += tx00n
+            }
+            tx01 += '<p><font size="+1" color="red"><b>Печатное задание НЕКОРРЕКТНО!</b><br>'
+            tx01 += 'Для его заполнения будет использована последняя страница документа как "пустая" страница.</font>'
+            tx01 += tx_rez
+        } // if FinPgAdded
+        else { // if FinPgAdded  - Если пустая стр НЕ добавлена
+            tx01 = '<font size="+1" color="red"><p align="center"><u>Внимание!</u> <br><br> Печатное задание не корректно и пустая страница не добавлена!'
+            tx01 += '<p align="center">Если пустая страница все-таки имеется - отметьте чекбокс в форме и еще раз нажмите на кнопку "ПОСЧИТАТЬ"</font>'
+        } // else if FinPgAdded
+    } // if InCorrDocVol
+
+    else { // if InCorrDocVol  - Если корр. объем
+        tx01 = tx_lw + tx00
+        if (A4perLastBrosh > 0) {
+            tx01 += tx00n
+        }
+        tx01 += tx_rez
+    } // else if InCorrDocVol
+
+    if (!result_cell_created) {
+        tab2_obj = document.getElementById('Tab2').insertRow(0);
+        result_cell = tab2_obj.insertCell(0);
+        result_cell_created = true
+    }
+    result_cell.innerHTML = tx01
+
+//	document.getElementById("result_tab").innerHTML = tx01
+
+} // function calc_res()
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function sub_help(h_s, h_v) // Вывод Дополнительной Помощи
+{// h_s - help section, h_v - help variant: 1 - word 2003,  2 - w 2007, 3 - libre
+
+    if (sub_cell_act [h_s] != h_v) { // что-то делаем, если просят показать иную ячейку, а не ту, что уже открыта
+        if (sub_cell_created [h_s]) { // sub_cell_created - если ячейка с доп. помощью открыта
+            sub_cell [h_s].style.display = "none";
+        } // if (sub_cell_created)
+
+        sub_cell [h_s] = document.getElementById(sub_cell_ID [h_s] [h_v]);
+        sub_cell [h_s].style.display = "table-cell";
+        sub_cell_act [h_s] = h_v;
+        sub_cell_created [h_s] = true;
+
+    } // if (sub_cell_act [h_s] != h_v)
+
+} // function sub_help ()
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function sub_help_delete(h_s) {
+    if (sub_cell_created [h_s]) { // sub_cell_created - если ячейка с доп. помощью открыта
+        sub_cell [h_s].style.display = "none";
+        sub_cell_act [h_s] = 0;
+    } // if (!sub_cell_created)
+} // function sub_help_delete
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function doc_vol_input(but) { // Ввод Объема Документа с "Калькулятора"
+    PgNmbr_st = document.BroshCalc.PgNmbr_in.value; // Считываем объем (PgNmbr_st - строка)нашего Документа из поля ввода
+    PgNmbr_n = +PgNmbr_st; // Преобразовываем объем в числовой формат
+
+    if ((but >= 0) && (but <= 9)) {  // Если нажали цифровую кнопку
+        if (PgNmbr_n == 0)
+            PgNmbr_st = but;
+        else if ((PgNmbr_n > 0) && (PgNmbr_n < 1000)) 	// !!! Ограничитель ввода на 4 знака !!!
+            PgNmbr_st += but;
+        else {
+        }
+        PgNmbr_n = +PgNmbr_st;
+    } // if ((but >= 0) && (but <= 9))
+    if (but == -1) {  // Если нажали <-
+        if (PgNmbr_n < 10) {
+            PgNmbr_n = 0;
+        } else {
+            PgNmbr_st = PgNmbr_st.slice(0, -1);
+            PgNmbr_n = +PgNmbr_st;
+        } // if (PgNmbr_n < 10) else
+    } // if (but == -1)
+    if (but == -2) {
+        PgNmbr_n = 0;
+    } // Если нажали С
+
+    PgNmbr = PgNmbr_n;
+    document.BroshCalc.PgNmbr_in.value = PgNmbr;
+
+    calc_brosh_0();
+} // function doc_vol_input
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function txt2nmbr_ch(event, fld_id, but_el, d, add_proc) {
+// txt2nmbr_ch = text to number change		Обработчик для нажатий на стрелки "меньше-больше"
+// fld_id - field ID - идентификатор поля для доступа к нему;
+// but_el - button element - элемент кнопки (при вызове указывается this);
+// d - delta значение, на которое надо изменить поля;
+// add_proc - additional procedure - доп.функция, которую надо запускать внутри обработчиков
+
+    fld = document.getElementById(fld_id); // получаем элемент по ID
+    fld_st = fld.value; // получаем значение из поля ввода
+    fld_val = +fld_st; // преобразовуем его в число
+
+    var abort_flag = false;
+
+// Зарегистрировать обработчики событий mouseout и mouseup, которые последуют за событием mousedown.
+    if (document.addEventListener) { // Стандартная модель событий
+        document.addEventListener("mouseout", outHandler, false);
+        document.addEventListener("mouseup", upHandler, false);
+    } // if (document.addEventListener)
+    else if (document.attachEvent) { // Модель событий IE для IE5-8
+        but_el.setCapture();
+        but_el.attachEvent("onmouseout", outHandler);
+        but_el.attachEvent("onmouseup", upHandler);
+    } // else if (document.addEventListener)
+
+// Это событие обработано и не должно передаваться другим обработчикам
+    if (event.stopPropagation)
+        event.stopPropagation(); 	// Стандартная модель
+    else event.cancelBubble = true;	// IE
+
+// Предотвратить выполнение действий, предусмотренных по умолчанию.
+    if (event.preventDefault) event.preventDefault();	// Стандартная модель
+    else event.returnValue = false;	// IE
+
+    /*	Этот обработчик перехватывает события mousemout */
+    function outHandler(e) {
+        if (!e) e = window.event;	// Модель событий IE
+
+        abort_flag = true; // функцию txt2nmbr_ch пора прерывать
+
+        removeEventListeners(e); // удалить перехватчики
+        // И прервать дальнейшее распространение события.
+        if (e.stopPropagation) e.stopPropagation(); // Стандартная модель
+        else e.cancelBubble = true;	// IE
+
+        // Предотвратить выполнение действий, предусмотренных по умолчанию.
+        if (e.preventDefault) e.preventDefault();	// Стандартная модель
+        else e.returnValue = false;	// IE
+    } // function outHandler(e)
+
+    /*	Этот обработчик перехватывает событие mouseup, которое завершает операцию изменения значения. */
+    function upHandler(e) {
+        if (!e) e = window.event;	// Модель событий IE
+
+        abort_flag = true; // функцию txt2nmbr_ch пора прерывать
+
+        removeEventListeners(e); // удалить перехватчики
+    } // function upHandler(e)
+
+    /*	Эта функция удаляет перехватывающие обработчики событий
+            И прерывает дальнейшее распространение события. */
+    function removeEventListeners(e) {
+        // Удалить перехватывающие обработчики событий.
+        if (document.removeEventListener) { // Модель событий DOM
+            document.removeEventListener("mouseup", upHandler, false);
+            document.removeEventListener("mousemout", outHandler, false);
+        } else if (document.detachEvent) {	// Модель событий IE 5+
+            but_el.detachEvent("onmouseup", upHandler);
+            but_el.detachEvent("onmousemout", outHandler);
+            but_el.releaseCapture();
+        }
+        // И прервать дальнейшее распространение события.
+        if (e.stopPropagation) e.stopPropagation(); // Стандартная модель
+        else e.cancelBubble = true;	// IE
+    } // function removeEventListeners(e)
+
+    var intervalID = setInterval(ch_val, 100); // таймер на 100 милисек.
+
+    function stub() {
+    } // stub() - заглушка, пустая функция для вставки в таймер
+
+    function ch_val() { // change value
+        if (abort_flag) {
+            clearInterval(intervalID)
+        } else {
+            fld_val += d;
+            fld.value = fld_val;
+            add_proc(); //calc_brosh_0();
+        } // else
+    } // function ch_val()
+
+} // function txt2nmbr_ch()
+
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function scroll_me_up(h_s, h_v) //
+{// Получить идентификатор (как в sub_help), узнать высоту элемента и прокрутить страницу на эту высоту
+    HeightUp = document.getElementById(sub_cell_ID [h_s] [h_v]).offsetHeight; // sub_cell_ID [h_s] [h_v]
+    window.scrollBy(0, -HeightUp);
+} // function scroll_me_up (el_ID)
+
+// f f f f f f f f f f f f f f f f f f f f f f f f f
+function set_bottom() {
+    //document.getElementById("bottom_cell").style.height=window.screen.height-350;
+    document.getElementById("bottom_cell").style.height = 250;
+} // function set_bottom ()
+

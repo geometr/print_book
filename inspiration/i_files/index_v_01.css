@@ -1,0 +1,185 @@
+.td_b0 {
+    border: 0px; /* стиль рамки ячеек */
+}
+
+.t1 { /*Стиль таблицы 1 - верхняя таблица-форма (подложка) */
+    background: #C0C0C0;
+    width: 988px;
+    border-spacing: 3px;
+    padding: 3px;
+    border: 0px;
+}
+
+.t2, .t2_b0, .t2_bg1, .t2_bg1_b0 { /* Стиль таблиц семейства t2 */
+    margin: auto;
+    width: 100%;
+    border-spacing: 2px;
+    padding: 2px;
+}
+
+.t2 { /*Стиль таблицы 2*/
+    background: #C0C0C0;
+    border: 1px solid black;
+}
+
+.t2_b0 { /*Стиль таблицы 2*/
+    background: #C0C0C0;
+    border: 0;
+}
+
+.t2_bg1 {
+    background: #d8d8d8;
+    border: 1px solid black;
+}
+
+.t2_bg1_b0 {
+    background: #d8d8d8;
+    border: 0;
+}
+
+.site_title_td { /* Стиль заголовка страницы */
+    border: 6px groove #d8bfd8;
+}
+
+.site_title { /* Стиль заголовка страницы */
+    font-family: 'Times New Roman', Times, serif; /* */
+    font-size: 24pt;
+    font-weight: bold;
+    color: indigo;
+    margin: auto;
+    padding: 12px;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.but { /* Стиль для кнопок п.1 */
+    font-family: monospace;
+    font-size: 10pt;
+    width: 40px;
+}
+
+.btn_st1 { /* Стиль для кнопок "меньше-больше" п.1 */
+    width: 10px;
+    height: 15px;
+    border: 1px solid white;
+    vertical-align: middle;
+}
+
+.maint { /* Осн. формат текста абзац*/
+    font-size: 15pt;
+    color: Black;
+}
+
+.mainp { /*Осн. абзац*/
+    font-size: 15pt;
+    color: Black;
+    text-indent: 30px;
+    text-align: justify;
+}
+
+.mainp:first-letter { /* Псевдоэлемент */
+    font-family: 'Times New Roman', Times, serif; /* Гарнитура шрифта первой буквы */
+    font-size: 200%; /* Размер шрифта первого символа */
+    color: red; /* Красный цвет текста */
+}
+
+.h_menu { /* Стиль текста в помощи - меню */
+    background: #d4d0c8;
+    white-space: nowrap;
+}
+
+.h_kbd { /* Стиль текста в помощи - клавиатура */
+    background: #fffff0;
+    white-space: nowrap;
+}
+
+.h_rez { /* Стиль текста в помощи - результат - дамп печати */
+    background: #D8D3B1;
+    white-space: nowrap;
+}
+
+.h_ex { /* Стиль текста в помощи - пример (example) */
+    font-family: monospace;
+    font-size: 11pt;
+}
+
+.h_name { /* Стиль текста в помощи - имена (файлов, модулей... */
+    font-family: Arial, sans-serif; /* */
+    font-size: 80%;
+    background: #f5f5f5;
+    color: #0000ff;
+    white-space: nowrap;
+}
+
+.pic_capt { /* Стиль текста в помощи - подпись на картинке */
+    background: yellow;
+    color: black;
+    border: 2px solid red;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.variant { /* Стиль текста в помощи - вариант */
+    background: skyblue;
+    color: indigo;
+    border: 2px solid indigo;
+    border-radius: 4px;
+    padding: 0px 5px 0px 5px;
+    line-height: 1.5;
+}
+
+.li_in_p { /* Стиль текста в помощи - подпункт в Осн. абзаце */
+    font-size: 15pt;
+    color: Black;
+    text-align: justify;
+}
+
+.subhelp { /* Текст ссылки на доп. помощь */
+    font-size: 12pt;
+    color: MediumVioletRed;
+    background: #7fffd4;
+    font-style: italic;
+}
+
+.subhelp_p { /* Стиль абзацев в доп. помощи */
+    font-size: 14pt;
+    color: Black;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-indent: 30px;
+    text-align: justify;
+}
+
+.subhelp_plug { /* Стиль вставки в абзац доп. помощи - оформляется как абзац, но без разрыва по вертикали */
+    font-size: 14pt;
+    color: Black;
+    margin-left: 30px;
+    margin-right: 10px;
+    text-indent: 30px;
+    text-align: justify;
+}
+
+.subhelp_h { /* Стиль заголовка в доп. помощи */
+    font-family: Arial, Verdana, Helvetica, sans-serif; /* */
+    font-size: 120%;
+    background: skyblue;
+    color: indigo;
+    border: 2px solid indigo;
+    border-radius: 6px;
+    margin: 10px;
+    padding: 7px;
+    line-height: 2;
+    white-space: nowrap;
+}
+
+.pg_str { /* Текст строк с нимерами страниц в Резултатах расчета */
+    background: #f0ffff;
+    /*font-size: 12pt;
+    color : MediumVioletRed;
+    font-style: italic; */
+}
+
+.banner {
+    display: block;
+    margin: 0 auto;
+}
