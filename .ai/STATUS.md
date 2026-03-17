@@ -1,0 +1,21 @@
+---
+what: current state of this project
+update: after each work session
+owner: print_book
+---
+# Status
+last_updated: 2026-03-17T19:13:18
+done:
+  - src/index.html (single page UI)
+  - src/css/style.css (styles)
+  - src/js/calc.js (pure calc)
+  - src/js/i18n.js (RU/EN strings + help)
+  - src/js/book.js (DOM glue)
+  - tests/test_calc.js (12 tests, Node)
+in_progress:
+  - help: port full text from inspiration/print.html
+blocked:
+  - none
+next:
+  - verify UI in browser
+  - compare outputs vs inspiration for same inputs
