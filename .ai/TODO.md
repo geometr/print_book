@@ -3,10 +3,14 @@ what: next actions for this project
 update: after each session
 owner: print_book
 ---
-last_updated: 2026-03-17T18:32:33
+
+last_updated: 2026-03-18T01:27:55
+
 # Todo
-- decide target: calculator vs template vs notes archive
-- fix encoding in HTML sources (garbled Cyrillic)
-- implement CSS and JS (currently empty)
-- add README with purpose and usage
+
+- deploy to server
+- replace CANONICAL_URL in sitemap.xml and og:url in index.html
+- set real domain in og-image.svg once domain known
+- test on mobile
+- complete EN help text (RU done)
 

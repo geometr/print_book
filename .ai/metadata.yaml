@@ -1,13 +1,13 @@
 name: print_book
-lang: html+css+js
-domain: web
-status: active
-maturity: prototype
+lang: html+js
+domain: TBD
+status: ready-to-deploy
+maturity: stable
 stack:
   - html
   - css
   - javascript
 port: 0
-healthcheck: none
-last_updated: 2026-03-17T18:32:33
+healthcheck: /index.html
+last_updated: 2026-03-18T01:27:55
 

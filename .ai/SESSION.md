@@ -3,9 +3,10 @@ what: ephemeral work notes, cleared after sync
 update: during work session only
 owner: print_book
 ---
-session_start: 2026-03-17T18:32:33
+
+session_start:
 session_end:
-last_session:
+last_session: 2026-03-18T00:53:25
 gap_days:
-context_fresh: false
+context_fresh: true
 
