@@ -4,7 +4,7 @@ update: after each work session
 owner: print_book
 ---
 # Status
-last_updated: 2026-03-17T23:48:57
+last_updated: 2026-03-17T23:57:12
 done:
   - src/index.html (single page UI)
   - src/css/style.css (styles)
@@ -25,6 +25,7 @@ done:
   - bookletCount moved to computed results (input removed)
   - simplified inputs: pgCount, pagesPerSheet, pagesPerBooklet, padToFit
   - pad pages numbered as N+1.. (no zero placeholders)
+  - padToFit toggle aligned to signature row
 in_progress:
   - none
 blocked:

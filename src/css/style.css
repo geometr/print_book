@@ -169,6 +169,10 @@ body {
   background: rgba(0, 0, 0, 0.18);
 }
 
+.check--top {
+  align-self: start;
+}
+
 .check__label {
   color: var(--muted);
   font-size: 13px;
