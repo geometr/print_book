@@ -143,7 +143,9 @@ function reckon({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit }) {
 
         const row = [null, a, b, c, d];
         for (let k = 1; k <= 4; k++) {
-          if (row[k] > pgCount) row[k] = 0;
+          // If we padded volume, pages beyond pgCount are numbered N+1..paddedPgCount.
+          // Any pages beyond paddedPgCount are treated as impossible/blank.
+          if (row[k] > paddedPgCount) row[k] = 0;
         }
 
         prnDistrU[i1][j1][j2] = row;
@@ -287,4 +289,3 @@ if (typeof module !== "undefined" && module.exports) {
 } else {
   window.Calc = api;
 }
-

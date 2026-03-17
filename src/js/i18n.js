@@ -14,7 +14,7 @@
     <li><b>Страниц в документе</b>: общее количество страниц.</li>
     <li><b>Страниц на лист</b>: 2 / 4 / 8 (на одной стороне).</li>
   <li><b>Страниц в тетради</b>: размер тетради. Количество тетрадей вычисляется автоматически.</li>
-  <li><b>Добить пустыми страницами</b>: если включено, недостающие страницы в каждой тетради заполняются пустыми (0).</li>
+  <li><b>Добить пустыми страницами</b>: если включено, недостающие страницы в каждой тетради заполняются номерами {N+1}, {N+2}... где N — число страниц в документе.</li>
     <li><b>Подача бумаги</b>: <b>Стандартная подача</b> или <b>Обратная подача бумаги</b> (см. ниже).</li>
   </ul>
 
@@ -113,7 +113,7 @@
     <li><b>Document pages</b>: total pages in the document.</li>
     <li><b>Pages per sheet</b>: 2 / 4 / 8 (per side).</li>
   <li><b>Pages per signature</b>: signature size. Number of signatures is computed automatically.</li>
-  <li><b>Pad with blank pages</b>: if enabled, missing pages in each signature become blanks (0).</li>
+  <li><b>Pad with blank pages</b>: if enabled, missing pages in each signature are numbered {N+1}, {N+2}... where N is the document page count.</li>
     <li><b>Paper feed</b>: <b>Standard feed</b> or <b>Reverse paper feed</b> (see below).</li>
   </ul>
 
@@ -230,7 +230,7 @@
       foldsTotalLabel: "Сгибов всего",
       pagesPerBookletLabel: "Страниц в тетради",
       lastBookletPagesLabel: "Страниц в последней тетради",
-      blankPagesAdded: "Добавлено пустых страниц: {n}",
+      blankPagesAddedLabel: "Добавлено пустых страниц",
       resultsTitle: "Результат",
       side1: "Сторона 1",
       side2: "Сторона 2",
@@ -288,7 +288,7 @@
       foldsTotalLabel: "Folds total",
       pagesPerBookletLabel: "Pages per booklet",
       lastBookletPagesLabel: "Last booklet pages",
-      blankPagesAdded: "Blank pages added: {n}",
+      blankPagesAddedLabel: "Blank pages added",
       resultsTitle: "Results",
       side1: "Side 1",
       side2: "Side 2",

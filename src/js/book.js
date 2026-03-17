@@ -394,7 +394,7 @@
 
     if (padToFit && r0.volume.totalBlankPages > 0) {
       byId("blankPagesRow").hidden = false;
-      setText(byId("blankPagesAdded"), fmt("blankPagesAdded", { n: r0.volume.totalBlankPages }));
+      setText(byId("blankPagesAdded"), r0.volume.totalBlankPages);
     } else {
       byId("blankPagesRow").hidden = true;
       setText(byId("blankPagesAdded"), "");

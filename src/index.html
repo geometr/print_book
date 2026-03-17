@@ -78,6 +78,11 @@
             <div class="field-hint" data-i18n="hintPagesPerBooklet"></div>
           </label>
 
+          <label class="check">
+            <input id="padToFit" type="checkbox" checked />
+            <span class="check__label" data-i18n="padToFit"></span>
+          </label>
+
           <div class="field">
             <div class="field__label"></div>
             <div class="seg" role="group" aria-label="paper feed mode">
@@ -91,11 +96,6 @@
               </label>
             </div>
           </div>
-
-          <label class="check">
-            <input id="padToFit" type="checkbox" checked />
-            <span class="check__label" data-i18n="padToFit"></span>
-          </label>
         </div>
 
         <div class="derived">
@@ -117,6 +117,7 @@
             <span class="derived__v" id="a4PerBookletValue"></span>
           </div>
           <div class="derived__row" id="blankPagesRow" hidden>
+            <span class="derived__k" data-i18n="blankPagesAddedLabel"></span>
             <span class="derived__v" id="blankPagesAdded"></span>
           </div>
           <div class="derived__row">

@@ -257,16 +257,16 @@ test("27. reckon computed booklets=2: all pages covered", () => {
   for (let i = 1; i <= 16; i++) assert(all.includes(i), "missing page " + i);
 });
 
-test("28. padToFit=true: blanks are 0 and totalBlankPages computed", () => {
+test("28. padToFit=true: padding uses N+1.. and totalBlankPages computed", () => {
   const r = calc.reckon({ pgCount: 20, pagesPerSheet: 2, pagesPerBooklet: 8, padToFit: true });
   assert(r.valid, "expected valid");
   assertEq(r.bookletCount, 3);
   assertEq(r.totalBlankPages, 4);
   const all = allPagesFromResult(r);
-  assert(all.includes(0), "expected blanks (0) in output");
-  const real = all.filter((n) => n > 0).sort((a, b) => a - b);
-  for (let i = 1; i <= 20; i++) assert(real.includes(i), "missing page " + i);
-  assertEq(real.length, 20, "duplicate real pages found");
+  assert(!all.includes(0), "did not expect 0 padding pages");
+  const nums = all.filter((n) => n > 0).sort((a, b) => a - b);
+  for (let i = 1; i <= 24; i++) assert(nums.includes(i), "missing page " + i);
+  assertEq(nums.length, 24, "expected each page number exactly once");
 });
 
 test("29. reverseOutput computed booklets=2: both backs reversed", () => {
@@ -407,4 +407,3 @@ test("53. padToFit=false: bookletCount computed but invalid when not divisible",
   const r = calc.calcBooklet0({ pgCount: 17, pagesPerSheet: 2, pagesPerBooklet: 8, padToFit: false });
   assert(!r.valid, "expected invalid");
 });
-
