@@ -152,6 +152,27 @@ test("15. reverseOutput + pps=8: back ordering preserved then reversed", () => {
   assertEq(out.booklets[0].back, reverseCsv(rr.booklets[0].back));
 });
 
+test("16. calcBooklet1: bookletCount too large -> invalid", () => {
+  const r0 = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, blankLastPage: false });
+  assert(r0.valid, "expected valid");
+  const r1 = calc.calcBooklet1({ total: r0, bookletCount: 3, a4PerBooklet: 1 });
+  assert(!r1.valid, "expected invalid");
+});
+
+test("17. calcBooklet1: split exceeds total -> invalid", () => {
+  const r0 = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, blankLastPage: false });
+  assert(r0.valid, "expected valid");
+  const r1 = calc.calcBooklet1({ total: r0, bookletCount: 2, a4PerBooklet: 2 });
+  assert(!r1.valid, "expected invalid");
+});
+
+test("18. calcBooklet1: a4PerBooklet too large -> invalid", () => {
+  const r0 = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, blankLastPage: false });
+  assert(r0.valid, "expected valid");
+  const r1 = calc.calcBooklet1({ total: r0, bookletCount: 1, a4PerBooklet: 3 });
+  assert(!r1.valid, "expected invalid");
+});
+
 if (typeof module !== "undefined" && module.exports) {
   // Node exits if we didn't throw.
 }

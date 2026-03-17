@@ -15,6 +15,14 @@
     el.textContent = String(text);
   }
 
+  function validatePagesPerSheet(pagesPerSheet) {
+    return pagesPerSheet === 2 || pagesPerSheet === 4 || pagesPerSheet === 8;
+  }
+
+  function ceilDiv(a, b) {
+    return Math.floor((a + b - 1) / b);
+  }
+
   const state = {
     lang: "ru",
     helpOpen: false,
@@ -22,6 +30,15 @@
 
   function t(key) {
     return window.I18N[state.lang][key];
+  }
+
+  function fmt(key, vars) {
+    let s = String(t(key));
+    if (!vars) return s;
+    for (const k of Object.keys(vars)) {
+      s = s.split("{" + k + "}").join(String(vars[k]));
+    }
+    return s;
   }
 
   function applyI18n() {
@@ -34,6 +51,121 @@
     const helpToggle = byId("help-toggle");
     helpToggle.textContent = state.helpOpen ? t("helpToggleOpen") : t("helpToggleClosed");
     byId("help-content").innerHTML = window.I18N[state.lang].helpHtml;
+  }
+
+  function setValidationDetails({ errors, recs }) {
+    const el = byId("validationDetails");
+    el.innerHTML = "";
+
+    if ((!errors || errors.length === 0) && (!recs || recs.length === 0)) {
+      el.hidden = true;
+      return;
+    }
+
+    el.hidden = false;
+
+    if (errors && errors.length) {
+      const title = document.createElement("b");
+      title.textContent = t("validationErrorsTitle");
+      el.appendChild(title);
+
+      const ul = document.createElement("ul");
+      for (const msg of errors) {
+        const li = document.createElement("li");
+        li.textContent = msg;
+        ul.appendChild(li);
+      }
+      el.appendChild(ul);
+    }
+
+    if (recs && recs.length) {
+      const title = document.createElement("b");
+      title.textContent = t("validationFixTitle");
+      if (el.childNodes.length) el.appendChild(document.createElement("br"));
+      el.appendChild(title);
+
+      const ul = document.createElement("ul");
+      for (const msg of recs) {
+        const li = document.createElement("li");
+        li.textContent = msg;
+        ul.appendChild(li);
+      }
+      el.appendChild(ul);
+    }
+  }
+
+  function validateInputs({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastPage }) {
+    const errors = [];
+    const recs = [];
+
+    if (!Number.isInteger(pgCount)) {
+      errors.push(t("errPgCountInt"));
+      return { ok: false, errors, recs };
+    }
+
+    if (pgCount < 2) {
+      errors.push(fmt("errPgCountMin", { min: 2 }));
+      return { ok: false, errors, recs };
+    }
+
+    if (!Number.isInteger(pagesPerSheet) || !validatePagesPerSheet(pagesPerSheet)) {
+      errors.push(t("errPps"));
+      return { ok: false, errors, recs };
+    }
+
+    const unit = pagesPerSheet * 2;
+    if (!blankLastPage && pgCount % unit !== 0) {
+      errors.push(fmt("errVolumeDivisible", { unit, pps: pagesPerSheet }));
+      recs.push(t("recEnableBlankLastPage"));
+
+      const down = Math.floor(pgCount / unit) * unit;
+      const up = ceilDiv(pgCount, unit) * unit;
+      if (down >= 2 && down !== up) {
+        recs.push(fmt("recNearestVolume", { down, up }));
+      } else {
+        recs.push(fmt("recNearestVolume", { down: up, up }));
+      }
+
+      return { ok: false, errors, recs };
+    }
+
+    const computePgCount = blankLastPage ? ceilDiv(pgCount, unit) * unit : pgCount;
+    const computeA4Sheets = computePgCount / unit;
+
+    if (!Number.isInteger(bookletCount)) {
+      errors.push(t("errBookletCountInt"));
+      return { ok: false, errors, recs };
+    }
+
+    if (bookletCount < 1) {
+      errors.push(fmt("errBookletMin", { min: 1 }));
+      return { ok: false, errors, recs };
+    }
+
+    if (bookletCount > computeA4Sheets) {
+      errors.push(t("errBookletTooMany"));
+      recs.push(fmt("recMaxBooklets", { max: computeA4Sheets }));
+      return { ok: false, errors, recs };
+    }
+
+    if (!Number.isInteger(a4PerBooklet)) {
+      errors.push(t("errA4PerBookletInt"));
+      return { ok: false, errors, recs };
+    }
+
+    if (a4PerBooklet < 1) {
+      errors.push(fmt("errA4PerBookletMin", { min: 1 }));
+      return { ok: false, errors, recs };
+    }
+
+    const maxA4 = bookletCount === 1 ? computeA4Sheets : Math.floor((computeA4Sheets - 1) / (bookletCount - 1));
+    if (a4PerBooklet > maxA4) {
+      errors.push(t("errA4PerBookletTooLarge"));
+      recs.push(fmt("recMaxA4PerBooklet", { booklets: bookletCount, max: maxA4 }));
+      return { ok: false, errors, recs };
+    }
+
+    return { ok: true, errors: [], recs: [] };
   }
 
   function renderResults(result) {
@@ -79,12 +211,12 @@
     const blankLastPage = byId("blankLastPage").checked;
     const feedMode = document.querySelector('input[name="feedMode"]:checked')?.value || "standard";
 
-    const r0 = window.Calc.calcBooklet0({ pgCount, pagesPerSheet, blankLastPage });
-
     const validationEl = byId("validationMessage");
-    if (!r0.valid) {
+    const v = validateInputs({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastPage });
+    if (!v.ok) {
       validationEl.className = "derived__v danger";
       setText(validationEl, t("invalid"));
+      setValidationDetails(v);
       setText(byId("a4Total"), "-");
       setText(byId("foldsTotal"), "-");
       setText(byId("pagesPerBooklet"), "-");
@@ -95,12 +227,15 @@
 
     validationEl.className = "derived__v";
     setText(validationEl, t("valid"));
+    setValidationDetails({ errors: [], recs: [] });
 
+    const r0 = window.Calc.calcBooklet0({ pgCount, pagesPerSheet, blankLastPage });
     setText(byId("a4Total"), r0.derived.a4Total);
     setText(byId("foldsTotal"), r0.derived.foldsTotal);
 
     const r1 = window.Calc.calcBooklet1({ total: r0, bookletCount, a4PerBooklet });
     if (!r1.valid) {
+      setValidationDetails({ errors: [t("invalid")], recs: [] });
       setText(byId("pagesPerBooklet"), "-");
       setText(byId("lastBookletPages"), "-");
       byId("results").innerHTML = "";
@@ -112,6 +247,7 @@
 
     const rr = window.Calc.reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastPage });
     if (!rr.valid) {
+      setValidationDetails({ errors: [t("invalid")], recs: [] });
       byId("results").innerHTML = "";
       return;
     }

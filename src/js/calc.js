@@ -81,6 +81,18 @@ function calcBooklet1({ total, bookletCount, a4PerBooklet }) {
 
   const computeA4Sheets = total.volume.computePgCount / (pagesPerSheet * 2);
 
+  if (bookletCount > computeA4Sheets) {
+    return { valid: false, errors: ["bookletCount exceeds total A4 sheets"] };
+  }
+
+  if (a4PerBooklet > computeA4Sheets) {
+    return { valid: false, errors: ["a4PerBooklet exceeds total A4 sheets"] };
+  }
+
+  if (bookletCount > 1 && a4PerBooklet * (bookletCount - 1) >= computeA4Sheets) {
+    return { valid: false, errors: ["split exceeds total A4 sheets"] };
+  }
+
   // In this project, bookletCount is the total count including the last (possibly smaller) booklet.
   // The first (bookletCount - 1) booklets use a4PerBooklet, the last uses the remainder.
   const firstBooklets = Math.max(0, bookletCount - 1);
@@ -98,6 +110,9 @@ function calcBooklet1({ total, bookletCount, a4PerBooklet }) {
   return {
     valid: true,
     errors: [],
+    meta: {
+      computeA4Sheets,
+    },
     derived: {
       foldsPerBooklet,
       pagesPerBooklet,

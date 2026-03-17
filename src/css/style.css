@@ -175,6 +175,28 @@ body {
   border-top: 1px solid var(--border);
 }
 
+.derived__details {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.derived__details b {
+  color: var(--text);
+}
+
+.derived__details ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.derived__details li {
+  margin: 4px 0;
+}
+
 .derived__row {
   display: flex;
   justify-content: space-between;
