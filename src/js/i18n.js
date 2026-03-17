@@ -215,6 +215,15 @@
       bookletCountLabel: "Тетрадей (booklets)",
       a4PerBookletLabel: "Листов A4 на тетрадь",
       pagesPerSignature: "Страниц в тетради",
+      hintPagesPerBooklet:
+        "Типичная тетрадь: 8, 16 или 32 стр.\nДомашний степлер: до 30–40 стр. (15–20 листов 80г).\nНитками: рекомендуется 16–32 стр. на тетрадь.\nНесколько тетрадей сшиваются в блок для толстых книг.",
+      advisoryTooThick:
+        "Домашний степлер не пробьёт.\nИспользуйте сшивку нитками или несколько тетрадей.",
+      advisoryNearLimit:
+        "На пределе для домашнего степлера.\nЗависит от плотности бумаги.",
+      advisoryGoodSize: "Хорошо — подходит и для степлера, и для сшивки.",
+      advisoryTooSmall:
+        "Маленькая тетрадь — потребуется много тетрадей\nдля книги.",
       blankLastPageLabel: "Пустая последняя страница (разрешить)",
       validationLabel: "Проверка объема",
       a4TotalLabel: "A4 всего",
@@ -266,6 +275,15 @@
       bookletCountLabel: "Booklets (signatures)",
       a4PerBookletLabel: "A4 sheets per booklet",
       pagesPerSignature: "Pages per signature",
+      hintPagesPerBooklet:
+        "Typical signature: 8, 16 or 32 pages.\nHome stapler: up to 30–40 pages (15–20 sheets, 80gsm).\nHand-sewn: 16–32 pages per signature recommended.\nMultiple signatures are sewn together for thick books.",
+      advisoryTooThick:
+        "Home stapler won't punch through.\nUse hand-sewing or split into more signatures.",
+      advisoryNearLimit:
+        "Near home stapler limit.\nDepends on paper weight.",
+      advisoryGoodSize: "Good — works for both staple and hand-sewn binding.",
+      advisoryTooSmall:
+        "Small signature — you will need many signatures\nfor a full book.",
       blankLastPageLabel: "Allow blank last page",
       validationLabel: "Volume validation",
       a4TotalLabel: "A4 total",

@@ -33,6 +33,42 @@
     el.value = String(value);
   }
 
+  function setAdvisory(message) {
+    const el = byId("pagesPerBookletAdvisory");
+    if (!el) return;
+    if (!message) {
+      el.hidden = true;
+      el.textContent = "";
+      return;
+    }
+    el.hidden = false;
+    el.textContent = String(message);
+  }
+
+  function updatePagesPerBookletAdvisory(pagesPerBooklet) {
+    if (!Number.isInteger(pagesPerBooklet) || pagesPerBooklet <= 0) {
+      setAdvisory("");
+      return;
+    }
+
+    if (pagesPerBooklet > 40) {
+      setAdvisory(t("advisoryTooThick"));
+      return;
+    }
+
+    if (pagesPerBooklet > 32 && pagesPerBooklet <= 40) {
+      setAdvisory(t("advisoryNearLimit"));
+      return;
+    }
+
+    if (pagesPerBooklet >= 16 && pagesPerBooklet <= 32) {
+      setAdvisory(t("advisoryGoodSize"));
+      return;
+    }
+
+    setAdvisory(t("advisoryTooSmall"));
+  }
+
   function validatePagesPerSheet(pagesPerSheet) {
     return pagesPerSheet === 2 || pagesPerSheet === 4 || pagesPerSheet === 8;
   }
@@ -135,6 +171,7 @@
     setUrlLang(state.lang);
     applyI18n();
     applySeo();
+    updatePagesPerBookletAdvisory(toInt(byId("pagesPerBooklet")?.value));
     recalc();
   }
 
@@ -261,12 +298,14 @@
       setInputValue("pagesPerBooklet", pages);
       setFieldError("pagesPerBookletError", "");
     }
+    updatePagesPerBookletAdvisory(toInt(byId("pagesPerBooklet").value));
     recalc();
   }
 
   function onPagesPerBookletChange() {
     const pagesPerSheet = toInt(byId("pagesPerSheet").value);
     const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
+    updatePagesPerBookletAdvisory(pagesPerBooklet);
     const a4 = window.Calc.pagesPerBookletToA4(pagesPerBooklet, pagesPerSheet);
 
     if (a4 === null) {
@@ -288,6 +327,7 @@
       setInputValue("pagesPerBooklet", pages);
       setFieldError("pagesPerBookletError", "");
     }
+    updatePagesPerBookletAdvisory(toInt(byId("pagesPerBooklet").value));
     recalc();
   }
 
@@ -305,6 +345,7 @@
       const pages = window.Calc.a4ToPages(a4PerBooklet, pagesPerSheet);
       if (pages !== null) setInputValue("pagesPerBooklet", pages);
       setFieldError("pagesPerBookletError", "");
+      updatePagesPerBookletAdvisory(toInt(byId("pagesPerBooklet").value));
     }
 
     recalc();
@@ -353,6 +394,8 @@
     const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
     const blankLastPage = byId("blankLastPage").checked;
     const feedMode = document.querySelector('input[name="feedMode"]:checked')?.value || "standard";
+
+    updatePagesPerBookletAdvisory(pagesPerBooklet);
 
     const validationEl = byId("validationMessage");
     const v = validateInputs({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastPage });

@@ -4,7 +4,7 @@ update: after each work session
 owner: print_book
 ---
 # Status
-last_updated: 2026-03-17T21:33:55
+last_updated: 2026-03-17T22:10:34
 done:
   - src/index.html (single page UI)
   - src/css/style.css (styles)
@@ -18,6 +18,7 @@ done:
   - validation errors + fix recommendations in UI
   - SEO: meta/OG/JSON-LD, semantic HTML, robots.txt, sitemap.xml, i18n URLs
   - bidirectional a4PerBooklet <-> pagesPerBooklet inputs
+  - binding advisory with home-use thresholds
 in_progress:
   - none
 blocked:
