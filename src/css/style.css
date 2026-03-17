@@ -228,6 +228,39 @@ pre {
   color: var(--muted);
 }
 
+.help ul {
+  padding-left: 18px;
+}
+
+.help li {
+  margin: 6px 0;
+}
+
+.help__imggrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 10px 0 14px;
+}
+
+.help__img {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.help__imgtitle {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.help__imgph {
+  font-size: 12px;
+}
+
 .help h3 {
   color: var(--text);
   margin: 14px 0 6px;
