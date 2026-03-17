@@ -77,6 +77,7 @@
     const bookletCount = toInt(byId("bookletCount").value);
     const a4PerBooklet = toInt(byId("a4PerBooklet").value);
     const blankLastPage = byId("blankLastPage").checked;
+    const feedMode = document.querySelector('input[name="feedMode"]:checked')?.value || "standard";
 
     const r0 = window.Calc.calcBooklet0({ pgCount, pagesPerSheet, blankLastPage });
 
@@ -114,7 +115,14 @@
       byId("results").innerHTML = "";
       return;
     }
-    renderResults(rr);
+
+    let output = rr;
+    if (feedMode === "reverse") {
+      const rev = window.Calc.reverseOutput(rr, bookletCount);
+      if (rev.valid) output = rev;
+    }
+
+    renderResults(output);
   }
 
   function init() {
@@ -138,6 +146,10 @@
       byId(id).addEventListener("change", recalc);
     }
 
+    for (const id of ["feed-standard", "feed-reverse"]) {
+      byId(id).addEventListener("change", recalc);
+    }
+
     applyI18n();
     recalc();
   }
@@ -148,4 +160,3 @@
     init();
   }
 })();
-

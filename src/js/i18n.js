@@ -69,6 +69,8 @@
       title: "Печать книг (калькулятор)",
       pgCountLabel: "Страниц в документе",
       pagesPerSheetLabel: "Страниц на лист",
+      feedStandard: "Стандартная подача",
+      feedReverse: "Обратная подача бумаги",
       bookletCountLabel: "Тетрадей (booklets)",
       a4PerBookletLabel: "Листов A4 на тетрадь",
       blankLastPageLabel: "Пустая последняя страница (разрешить)",
@@ -91,6 +93,8 @@
       title: "Booklet Print Calculator",
       pgCountLabel: "Document pages",
       pagesPerSheetLabel: "Pages per sheet",
+      feedStandard: "Standard feed",
+      feedReverse: "Reverse paper feed",
       bookletCountLabel: "Booklets (signatures)",
       a4PerBookletLabel: "A4 sheets per booklet",
       blankLastPageLabel: "Allow blank last page",
@@ -113,4 +117,3 @@
 
   window.I18N = I18N;
 })();
-

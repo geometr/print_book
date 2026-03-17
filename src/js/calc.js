@@ -231,7 +231,37 @@ function reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastP
   };
 }
 
-const api = { calcBooklet0, calcBooklet1, reckon };
+/**
+ * reverseOutput(pagesStrCom, bookletCount)
+ * Returns a new reckon()-like output where back-side strings are reversed per booklet.
+ * Front-side strings are unchanged.
+ */
+function reverseOutput(pagesStrCom, bookletCount) {
+  if (!pagesStrCom || pagesStrCom.valid !== true || !Array.isArray(pagesStrCom.booklets)) {
+    return { valid: false, errors: ["invalid reckon output"] };
+  }
+
+  if (!Number.isInteger(bookletCount) || bookletCount < 1) {
+    return { valid: false, errors: ["invalid bookletCount"] };
+  }
+
+  if (pagesStrCom.booklets.length !== bookletCount) {
+    return { valid: false, errors: ["bookletCount does not match output"] };
+  }
+
+  const booklets = pagesStrCom.booklets.map((b) => {
+    const tokens = String(b.back).split(",").filter((x) => x.length > 0);
+    tokens.reverse();
+    return { index: b.index, front: b.front, back: tokens.join(",") };
+  });
+
+  return {
+    ...pagesStrCom,
+    booklets,
+  };
+}
+
+const api = { calcBooklet0, calcBooklet1, reckon, reverseOutput };
 
 if (typeof module !== "undefined" && module.exports) {
   module.exports = api;

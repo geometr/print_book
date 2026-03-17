@@ -119,7 +119,39 @@ test("12. pps=8, pgCount not divisible by 8, blankLastPage=false -> invalid", ()
   assert(!r.valid, "expected invalid");
 });
 
+function reverseCsv(str) {
+  return String(str)
+    .split(",")
+    .filter((x) => x.length > 0)
+    .reverse()
+    .join(",");
+}
+
+test("13. reverseOutput: back strings are reversed vs standard", () => {
+  const rr = calc.reckon({ pgCount: 8, pagesPerSheet: 2, bookletCount: 1, a4PerBooklet: 1, blankLastPage: true });
+  assert(rr.valid, "expected valid");
+  const out = calc.reverseOutput(rr, 1);
+  assert(out.valid, "expected valid reverse output");
+  assertEq(out.booklets[0].back, reverseCsv(rr.booklets[0].back));
+});
+
+test("14. reverseOutput: front strings unchanged", () => {
+  const rr = calc.reckon({ pgCount: 16, pagesPerSheet: 4, bookletCount: 1, a4PerBooklet: 2, blankLastPage: true });
+  assert(rr.valid, "expected valid");
+  const out = calc.reverseOutput(rr, 1);
+  assert(out.valid, "expected valid reverse output");
+  assertEq(out.booklets[0].front, rr.booklets[0].front);
+});
+
+test("15. reverseOutput + pps=8: back ordering preserved then reversed", () => {
+  const rr = calc.reckon({ pgCount: 32, pagesPerSheet: 8, bookletCount: 1, a4PerBooklet: 2, blankLastPage: true });
+  assert(rr.valid, "expected valid");
+  const out = calc.reverseOutput(rr, 1);
+  assert(out.valid, "expected valid reverse output");
+  assert(rr.booklets[0].back !== out.booklets[0].back, "expected back to change in reverse mode");
+  assertEq(out.booklets[0].back, reverseCsv(rr.booklets[0].back));
+});
+
 if (typeof module !== "undefined" && module.exports) {
   // Node exits if we didn't throw.
 }
-

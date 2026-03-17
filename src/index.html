@@ -45,6 +45,20 @@
             <input class="field__input" id="a4PerBooklet" type="number" min="1" step="1" value="1" />
           </label>
 
+          <div class="field">
+            <div class="field__label"></div>
+            <div class="seg" role="group" aria-label="paper feed mode">
+              <label class="seg__item">
+                <input type="radio" name="feedMode" id="feed-standard" value="standard" checked />
+                <span data-i18n="feedStandard"></span>
+              </label>
+              <label class="seg__item">
+                <input type="radio" name="feedMode" id="feed-reverse" value="reverse" />
+                <span data-i18n="feedReverse"></span>
+              </label>
+            </div>
+          </div>
+
           <label class="check">
             <input id="blankLastPage" type="checkbox" />
             <span class="check__label" data-i18n="blankLastPageLabel"></span>
@@ -88,4 +102,3 @@
     </main>
   </body>
 </html>
-

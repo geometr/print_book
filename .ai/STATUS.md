@@ -4,14 +4,15 @@ update: after each work session
 owner: print_book
 ---
 # Status
-last_updated: 2026-03-17T19:13:18
+last_updated: 2026-03-17T19:32:02
 done:
   - src/index.html (single page UI)
   - src/css/style.css (styles)
   - src/js/calc.js (pure calc)
   - src/js/i18n.js (RU/EN strings + help)
   - src/js/book.js (DOM glue)
-  - tests/test_calc.js (12 tests, Node)
+  - tests/test_calc.js (15 tests, Node)
+  - reverse-feed printer output mode
 in_progress:
   - help: port full text from inspiration/print.html
 blocked:

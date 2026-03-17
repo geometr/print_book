@@ -101,6 +101,44 @@ body {
   color: var(--text);
 }
 
+.seg {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.seg__item {
+  flex: 1;
+  position: relative;
+}
+
+.seg__item input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.seg__item span {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  cursor: pointer;
+  user-select: none;
+  border-right: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.seg__item:last-child span {
+  border-right: none;
+}
+
+.seg__item input:checked + span {
+  background: rgba(142, 240, 200, 0.18);
+  color: var(--text);
+}
+
 .check {
   display: flex;
   gap: 10px;
@@ -203,4 +241,3 @@ pre {
 .danger {
   color: var(--danger);
 }
-
