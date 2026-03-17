@@ -4,7 +4,7 @@ update: after each work session
 owner: print_book
 ---
 # Status
-last_updated: 2026-03-17T19:44:41
+last_updated: 2026-03-17T19:58:23
 done:
   - src/index.html (single page UI)
   - src/css/style.css (styles)
@@ -14,8 +14,9 @@ done:
   - tests/test_calc.js (15 tests, Node)
   - reverse-feed printer output mode
   - result labels update on language switch
+  - help: complete (RU/EN, from inspiration)
 in_progress:
-  - help: port full text from inspiration/print.html
+  - none
 blocked:
   - none
 next:
