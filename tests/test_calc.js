@@ -37,87 +37,12 @@ function test(name, fn) {
   }
 }
 
-test("1. pgCount=8 pps=2 -> a4Total=4 foldsTotal=4", () => {
-  const r = calc.calcBooklet0({ pgCount: 8, pagesPerSheet: 2, blankLastPage: false });
-  assert(r.valid, "expected valid");
-  assertEq(r.derived.a4Total, 4);
-  assertEq(r.derived.foldsTotal, 4);
-});
-
-test("2. pgCount=16 pps=4 -> a4Total=4 foldsTotal=4", () => {
-  const r = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, blankLastPage: false });
-  assert(r.valid, "expected valid");
-  assertEq(r.derived.a4Total, 4);
-  assertEq(r.derived.foldsTotal, 4);
-});
-
-test("3. pgCount=32 pps=8 -> a4Total=4 foldsTotal=4", () => {
-  const r = calc.calcBooklet0({ pgCount: 32, pagesPerSheet: 8, blankLastPage: false });
-  assert(r.valid, "expected valid");
-  assertEq(r.derived.a4Total, 4);
-  assertEq(r.derived.foldsTotal, 4);
-});
-
-test("4. pgCount=9 pps=2 blankLastPage=true -> valid, padded to 10", () => {
-  const r = calc.calcBooklet0({ pgCount: 9, pagesPerSheet: 2, blankLastPage: true });
-  assert(r.valid, "expected valid");
-  assertEq(r.volume.paddedPgCount, 10);
-});
-
-test("5. pgCount=9 pps=2 blankLastPage=false -> invalid", () => {
-  const r = calc.calcBooklet0({ pgCount: 9, pagesPerSheet: 2, blankLastPage: false });
-  assert(!r.valid, "expected invalid");
-});
-
-test("6. pgCount=16 pps=4 booklets=2 -> pagesPerBooklet=8", () => {
-  const r0 = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, blankLastPage: false });
-  assert(r0.valid, "expected valid");
-  const r1 = calc.calcBooklet1({
-    total: r0,
-    bookletCount: 2,
-    a4PerBooklet: 1,
-  });
-  assert(r1.valid, "expected valid");
-  assertEq(r1.derived.pagesPerBooklet, 8);
-});
-
-test("7. reckon: pgCount=8 pps=2 booklets=1 -> strings non-empty", () => {
-  const r = calc.reckon({ pgCount: 8, pagesPerSheet: 2, bookletCount: 1, a4PerBooklet: 1, blankLastPage: true });
-  assert(r.valid, "expected valid");
-  assert(r.booklets.length === 1, "expected 1 booklet");
-  assert(r.booklets[0].front.length > 0, "front empty");
-  assert(r.booklets[0].back.length > 0, "back empty");
-});
-
-test("8. reckon: pgCount=16 pps=4 booklets=1 -> strings non-empty", () => {
-  const r = calc.reckon({ pgCount: 16, pagesPerSheet: 4, bookletCount: 1, a4PerBooklet: 2, blankLastPage: true });
-  assert(r.valid, "expected valid");
-  assert(r.booklets.length === 1, "expected 1 booklet");
-  assert(r.booklets[0].front.length > 0, "front empty");
-  assert(r.booklets[0].back.length > 0, "back empty");
-});
-
-test("9. reckon: pps=8 back-side order differs from pps=4", () => {
-  const a = calc.reckon({ pgCount: 32, pagesPerSheet: 8, bookletCount: 1, a4PerBooklet: 2, blankLastPage: true });
-  const b = calc.reckon({ pgCount: 32, pagesPerSheet: 4, bookletCount: 1, a4PerBooklet: 4, blankLastPage: true });
-  assert(a.valid && b.valid, "expected both valid");
-  assert(a.booklets[0].back !== b.booklets[0].back, "back strings should differ");
-});
-
-test("10. pgCount=0 -> validation error", () => {
-  const r = calc.calcBooklet0({ pgCount: 0, pagesPerSheet: 2, blankLastPage: false });
-  assert(!r.valid, "expected invalid");
-});
-
-test("11. pgCount=1 -> validation error", () => {
-  const r = calc.calcBooklet0({ pgCount: 1, pagesPerSheet: 2, blankLastPage: false });
-  assert(!r.valid, "expected invalid");
-});
-
-test("12. pps=8, pgCount not divisible by 8, blankLastPage=false -> invalid", () => {
-  const r = calc.calcBooklet0({ pgCount: 10, pagesPerSheet: 8, blankLastPage: false });
-  assert(!r.valid, "expected invalid");
-});
+function tokens(str) {
+  return String(str)
+    .split(",")
+    .filter((x) => x.length > 0)
+    .map(Number);
+}
 
 function reverseCsv(str) {
   return String(str)
@@ -127,8 +52,147 @@ function reverseCsv(str) {
     .join(",");
 }
 
+function allPagesFromBooklet(b) {
+  return tokens(b.front + "," + b.back);
+}
+
+function allPagesFromResult(r) {
+  return r.booklets.flatMap((b) => allPagesFromBooklet(b));
+}
+
+test("1. pgCount=8 pps=2 -> a4Total=4 foldsTotal=4", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 8,
+    pagesPerSheet: 2,
+    bookletCount: 1,
+    pagesPerBooklet: 8,
+    padToFit: false,
+  });
+  assert(r.valid, "expected valid");
+  assertEq(r.derived.a4Total, 4);
+  assertEq(r.derived.foldsTotal, 4);
+});
+
+test("2. pgCount=16 pps=4 -> a4Total=4 foldsTotal=4", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 16,
+    pagesPerSheet: 4,
+    bookletCount: 1,
+    pagesPerBooklet: 16,
+    padToFit: false,
+  });
+  assert(r.valid, "expected valid");
+  assertEq(r.derived.a4Total, 4);
+  assertEq(r.derived.foldsTotal, 4);
+});
+
+test("3. pgCount=32 pps=8 -> a4Total=4 foldsTotal=4", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 32,
+    pagesPerSheet: 8,
+    bookletCount: 1,
+    pagesPerBooklet: 32,
+    padToFit: false,
+  });
+  assert(r.valid, "expected valid");
+  assertEq(r.derived.a4Total, 4);
+  assertEq(r.derived.foldsTotal, 4);
+});
+
+test("4. padToFit=true pgCount=9 pps=2 booklets=2 pagesPerBooklet=8 -> padded to 16, blanks=7", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 9,
+    pagesPerSheet: 2,
+    bookletCount: 2,
+    pagesPerBooklet: 8,
+    padToFit: true,
+  });
+  assert(r.valid, "expected valid");
+  assertEq(r.volume.paddedPgCount, 16);
+  assertEq(r.volume.totalBlankPages, 7);
+});
+
+test("5. padToFit=false pgCount=9 pps=2 booklets=2 pagesPerBooklet=8 -> invalid", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 9,
+    pagesPerSheet: 2,
+    bookletCount: 2,
+    pagesPerBooklet: 8,
+    padToFit: false,
+  });
+  assert(!r.valid, "expected invalid");
+});
+
+test("6. padToFit=false pgCount=16 pps=4 booklets=2 pagesPerBooklet=8 -> valid", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 16,
+    pagesPerSheet: 4,
+    bookletCount: 2,
+    pagesPerBooklet: 8,
+    padToFit: false,
+  });
+  assert(r.valid, "expected valid");
+  assertEq(r.volume.totalBlankPages, 0);
+});
+
+test("7. reckon: pgCount=8 pps=2 booklets=1 pagesPerBooklet=8 -> strings non-empty", () => {
+  const r = calc.reckon({ pgCount: 8, pagesPerSheet: 2, bookletCount: 1, pagesPerBooklet: 8, padToFit: false });
+  assert(r.valid, "expected valid");
+  assertEq(r.booklets.length, 1);
+  assert(r.booklets[0].front.length > 0, "front empty");
+  assert(r.booklets[0].back.length > 0, "back empty");
+});
+
+test("8. reckon: pgCount=16 pps=4 booklets=1 pagesPerBooklet=16 -> strings non-empty", () => {
+  const r = calc.reckon({ pgCount: 16, pagesPerSheet: 4, bookletCount: 1, pagesPerBooklet: 16, padToFit: false });
+  assert(r.valid, "expected valid");
+  assertEq(r.booklets.length, 1);
+  assert(r.booklets[0].front.length > 0, "front empty");
+  assert(r.booklets[0].back.length > 0, "back empty");
+});
+
+test("9. reckon: pps=8 back-side order differs from pps=4", () => {
+  const a = calc.reckon({ pgCount: 32, pagesPerSheet: 8, bookletCount: 1, pagesPerBooklet: 32, padToFit: false });
+  const b = calc.reckon({ pgCount: 32, pagesPerSheet: 4, bookletCount: 1, pagesPerBooklet: 32, padToFit: false });
+  assert(a.valid && b.valid, "expected both valid");
+  assert(a.booklets[0].back !== b.booklets[0].back, "back strings should differ");
+});
+
+test("10. pgCount=0 -> validation error", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 0,
+    pagesPerSheet: 2,
+    bookletCount: 1,
+    pagesPerBooklet: 8,
+    padToFit: false,
+  });
+  assert(!r.valid, "expected invalid");
+});
+
+test("11. pgCount=1 -> validation error", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 1,
+    pagesPerSheet: 2,
+    bookletCount: 1,
+    pagesPerBooklet: 8,
+    padToFit: false,
+  });
+  assert(!r.valid, "expected invalid");
+});
+
+test("12. pps=8, pgCount not divisible by signature capacity, padToFit=false -> invalid", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 10,
+    pagesPerSheet: 8,
+    bookletCount: 1,
+    pagesPerBooklet: 16,
+    padToFit: false,
+  });
+  assert(!r.valid, "expected invalid");
+});
+
 test("13. reverseOutput: back strings are reversed vs standard", () => {
-  const rr = calc.reckon({ pgCount: 8, pagesPerSheet: 2, bookletCount: 1, a4PerBooklet: 1, blankLastPage: true });
+  const rr = calc.reckon({ pgCount: 8, pagesPerSheet: 2, bookletCount: 1, pagesPerBooklet: 8, padToFit: false });
   assert(rr.valid, "expected valid");
   const out = calc.reverseOutput(rr, 1);
   assert(out.valid, "expected valid reverse output");
@@ -136,7 +200,7 @@ test("13. reverseOutput: back strings are reversed vs standard", () => {
 });
 
 test("14. reverseOutput: front strings unchanged", () => {
-  const rr = calc.reckon({ pgCount: 16, pagesPerSheet: 4, bookletCount: 1, a4PerBooklet: 2, blankLastPage: true });
+  const rr = calc.reckon({ pgCount: 16, pagesPerSheet: 4, bookletCount: 1, pagesPerBooklet: 16, padToFit: false });
   assert(rr.valid, "expected valid");
   const out = calc.reverseOutput(rr, 1);
   assert(out.valid, "expected valid reverse output");
@@ -144,7 +208,7 @@ test("14. reverseOutput: front strings unchanged", () => {
 });
 
 test("15. reverseOutput + pps=8: back ordering preserved then reversed", () => {
-  const rr = calc.reckon({ pgCount: 32, pagesPerSheet: 8, bookletCount: 1, a4PerBooklet: 2, blankLastPage: true });
+  const rr = calc.reckon({ pgCount: 32, pagesPerSheet: 8, bookletCount: 1, pagesPerBooklet: 32, padToFit: false });
   assert(rr.valid, "expected valid");
   const out = calc.reverseOutput(rr, 1);
   assert(out.valid, "expected valid reverse output");
@@ -152,234 +216,190 @@ test("15. reverseOutput + pps=8: back ordering preserved then reversed", () => {
   assertEq(out.booklets[0].back, reverseCsv(rr.booklets[0].back));
 });
 
-test("16. calcBooklet1: bookletCount too large -> invalid", () => {
-  const r0 = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, blankLastPage: false });
-  assert(r0.valid, "expected valid");
-  const r1 = calc.calcBooklet1({ total: r0, bookletCount: 3, a4PerBooklet: 1 });
-  assert(!r1.valid, "expected invalid");
+test("16. padToFit=true but capacity < pgCount -> invalid", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 17,
+    pagesPerSheet: 2,
+    bookletCount: 2,
+    pagesPerBooklet: 8,
+    padToFit: true,
+  });
+  assert(!r.valid, "expected invalid");
 });
 
-test("17. calcBooklet1: split exceeds total -> invalid", () => {
-  const r0 = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, blankLastPage: false });
-  assert(r0.valid, "expected valid");
-  const r1 = calc.calcBooklet1({ total: r0, bookletCount: 2, a4PerBooklet: 2 });
-  assert(!r1.valid, "expected invalid");
+test("17. pagesPerBooklet must be divisible by pagesPerSheet*2", () => {
+  const r = calc.calcBooklet0({
+    pgCount: 8,
+    pagesPerSheet: 4,
+    bookletCount: 1,
+    pagesPerBooklet: 12,
+    padToFit: false,
+  });
+  assert(!r.valid, "expected invalid");
 });
 
-test("18. calcBooklet1: a4PerBooklet too large -> invalid", () => {
-  const r0 = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, blankLastPage: false });
-  assert(r0.valid, "expected valid");
-  const r1 = calc.calcBooklet1({ total: r0, bookletCount: 1, a4PerBooklet: 3 });
-  assert(!r1.valid, "expected invalid");
+test("18. reverseOutput: bookletCount mismatch -> invalid", () => {
+  const rr = calc.reckon({ pgCount: 8, pagesPerSheet: 2, bookletCount: 1, pagesPerBooklet: 8, padToFit: false });
+  assert(rr.valid, "expected valid");
+  const out = calc.reverseOutput(rr, 2);
+  assert(!out.valid, "expected invalid");
 });
-
-if (typeof module !== "undefined" && module.exports) {
-  // Node exits if we didn't throw.
-}
-// ── BOUNDARY VALUES ──────────────────────────────────────────
 
 test("19. pgCount=4 pps=2 -> valid, a4Total=2", () => {
-  const r = calc.calcBooklet0({ pgCount: 4, pagesPerSheet: 2, blankLastPage: false });
+  const r = calc.calcBooklet0({
+    pgCount: 4,
+    pagesPerSheet: 2,
+    bookletCount: 1,
+    pagesPerBooklet: 4,
+    padToFit: false,
+  });
   assert(r.valid, "expected valid");
   assertEq(r.derived.a4Total, 2);
 });
 
 test("20. pgCount=8 pps=4 -> valid, a4Total=2", () => {
-  const r = calc.calcBooklet0({ pgCount: 8, pagesPerSheet: 4, blankLastPage: false });
+  const r = calc.calcBooklet0({
+    pgCount: 8,
+    pagesPerSheet: 4,
+    bookletCount: 1,
+    pagesPerBooklet: 8,
+    padToFit: false,
+  });
   assert(r.valid, "expected valid");
   assertEq(r.derived.a4Total, 2);
 });
 
 test("21. pgCount=16 pps=8 -> valid, a4Total=2", () => {
-  const r = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 8, blankLastPage: false });
+  const r = calc.calcBooklet0({
+    pgCount: 16,
+    pagesPerSheet: 8,
+    bookletCount: 1,
+    pagesPerBooklet: 16,
+    padToFit: false,
+  });
   assert(r.valid, "expected valid");
   assertEq(r.derived.a4Total, 2);
 });
 
-test("22. pgCount=2 pps=4 blankLastPage=true -> padded to 4", () => {
-  const r = calc.calcBooklet0({ pgCount: 2, pagesPerSheet: 4, blankLastPage: true });
+test("22. reckon pps=2 pgCount=8: front/back contain boundary pages", () => {
+  const r = calc.reckon({ pgCount: 8, pagesPerSheet: 2, bookletCount: 1, pagesPerBooklet: 8, padToFit: false });
   assert(r.valid, "expected valid");
-  assertEq(r.volume.paddedPgCount, 4);
-});
-
-test("23. pgCount=2 pps=4 blankLastPage=false -> invalid", () => {
-  const r = calc.calcBooklet0({ pgCount: 2, pagesPerSheet: 4, blankLastPage: false });
-  assert(!r.valid, "expected invalid");
-});
-
-// ── PAGE ORDER VERIFICATION (concrete values) ─────────────────
-
-test("24. reckon pps=2 pgCount=8 booklets=1: front is 8,1 back is 2,7", () => {
-  // standard 2-up booklet: sheet1 front=[8,1] back=[2,7]
-  // sheet2 front=[6,3] back=[4,5]
-  const r = calc.reckon({
-    pgCount: 8, pagesPerSheet: 2,
-    bookletCount: 1, a4PerBooklet: 2,
-    blankLastPage: false
-  });
-  assert(r.valid, "expected valid");
-  // front string contains pages in correct order
   assert(r.booklets[0].front.includes("8"), "front must contain page 8");
   assert(r.booklets[0].front.includes("1"), "front must contain page 1");
-  assert(r.booklets[0].back.includes("2"),  "back must contain page 2");
-  assert(r.booklets[0].back.includes("7"),  "back must contain page 7");
+  assert(r.booklets[0].back.includes("2"), "back must contain page 2");
+  assert(r.booklets[0].back.includes("7"), "back must contain page 7");
 });
 
-test("25. reckon pps=2 pgCount=8: all pages 1-8 present exactly once", () => {
-  const r = calc.reckon({
-    pgCount: 8, pagesPerSheet: 2,
-    bookletCount: 1, a4PerBooklet: 2,
-    blankLastPage: false
-  });
+test("23. reckon pps=2 pgCount=8: all pages 1-8 present exactly once", () => {
+  const r = calc.reckon({ pgCount: 8, pagesPerSheet: 2, bookletCount: 1, pagesPerBooklet: 8, padToFit: false });
   assert(r.valid, "expected valid");
-  const all = (r.booklets[0].front + "," + r.booklets[0].back)
-    .split(",").map(Number).filter(n => n > 0).sort((a,b) => a-b);
-  for (let i = 1; i <= 8; i++) {
-    assert(all.includes(i), "missing page " + i);
-  }
+  const all = allPagesFromResult(r)
+    .filter((n) => n > 0)
+    .sort((a, b) => a - b);
+  for (let i = 1; i <= 8; i++) assert(all.includes(i), "missing page " + i);
   assertEq(all.length, 8, "duplicate pages found");
 });
 
-test("26. reckon pps=4 pgCount=16: all pages 1-16 present exactly once", () => {
-  const r = calc.reckon({
-    pgCount: 16, pagesPerSheet: 4,
-    bookletCount: 1, a4PerBooklet: 2,
-    blankLastPage: false
-  });
+test("24. reckon pps=4 pgCount=16: all pages 1-16 present exactly once", () => {
+  const r = calc.reckon({ pgCount: 16, pagesPerSheet: 4, bookletCount: 1, pagesPerBooklet: 16, padToFit: false });
   assert(r.valid, "expected valid");
-  const all = (r.booklets[0].front + "," + r.booklets[0].back)
-    .split(",").map(Number).filter(n => n > 0).sort((a,b) => a-b);
-  for (let i = 1; i <= 16; i++) {
-    assert(all.includes(i), "missing page " + i);
-  }
+  const all = allPagesFromResult(r)
+    .filter((n) => n > 0)
+    .sort((a, b) => a - b);
+  for (let i = 1; i <= 16; i++) assert(all.includes(i), "missing page " + i);
   assertEq(all.length, 16);
 });
 
-test("27. reckon pps=8 pgCount=32: all pages 1-32 present exactly once", () => {
-  const r = calc.reckon({
-    pgCount: 32, pagesPerSheet: 8,
-    bookletCount: 1, a4PerBooklet: 2,
-    blankLastPage: false
-  });
+test("25. reckon pps=8 pgCount=32: all pages 1-32 present exactly once", () => {
+  const r = calc.reckon({ pgCount: 32, pagesPerSheet: 8, bookletCount: 1, pagesPerBooklet: 32, padToFit: false });
   assert(r.valid, "expected valid");
-  const all = (r.booklets[0].front + "," + r.booklets[0].back)
-    .split(",").map(Number).filter(n => n > 0).sort((a,b) => a-b);
-  for (let i = 1; i <= 32; i++) {
-    assert(all.includes(i), "missing page " + i);
-  }
+  const all = allPagesFromResult(r)
+    .filter((n) => n > 0)
+    .sort((a, b) => a - b);
+  for (let i = 1; i <= 32; i++) assert(all.includes(i), "missing page " + i);
   assertEq(all.length, 32);
 });
 
-// ── MULTI-BOOKLET ─────────────────────────────────────────────
-
-test("28. reckon booklets=2 pgCount=16 pps=2: each booklet non-empty", () => {
-  const r = calc.reckon({
-    pgCount: 16, pagesPerSheet: 2,
-    bookletCount: 2, a4PerBooklet: 2,
-    blankLastPage: false
-  });
+test("26. reckon booklets=2 pgCount=16 pps=2: each booklet non-empty", () => {
+  const r = calc.reckon({ pgCount: 16, pagesPerSheet: 2, bookletCount: 2, pagesPerBooklet: 8, padToFit: false });
   assert(r.valid, "expected valid");
   assertEq(r.booklets.length, 2);
-  assert(r.booklets[0].front.length > 0, "booklet 0 front empty");
-  assert(r.booklets[1].front.length > 0, "booklet 1 front empty");
+  assert(r.booklets[0].front.length > 0, "booklet 1 front empty");
+  assert(r.booklets[1].front.length > 0, "booklet 2 front empty");
 });
 
-test("29. reckon booklets=2 pgCount=16 pps=2: no overlap between booklets", () => {
-  const r = calc.reckon({
-    pgCount: 16, pagesPerSheet: 2,
-    bookletCount: 2, a4PerBooklet: 2,
-    blankLastPage: false
-  });
+test("27. reckon booklets=2 pgCount=16 pps=2: no overlap between booklets", () => {
+  const r = calc.reckon({ pgCount: 16, pagesPerSheet: 2, bookletCount: 2, pagesPerBooklet: 8, padToFit: false });
   assert(r.valid, "expected valid");
-  const pages0 = (r.booklets[0].front + "," + r.booklets[0].back)
-    .split(",").map(Number).filter(n => n > 0);
-  const pages1 = (r.booklets[1].front + "," + r.booklets[1].back)
-    .split(",").map(Number).filter(n => n > 0);
-  const overlap = pages0.filter(p => pages1.includes(p));
+  const pages0 = allPagesFromBooklet(r.booklets[0]).filter((n) => n > 0);
+  const pages1 = allPagesFromBooklet(r.booklets[1]).filter((n) => n > 0);
+  const overlap = pages0.filter((p) => pages1.includes(p));
   assertEq(overlap.length, 0, "booklets share pages: " + overlap);
 });
 
-test("30. reckon booklets=2: all pages covered", () => {
-  const r = calc.reckon({
-    pgCount: 16, pagesPerSheet: 2,
-    bookletCount: 2, a4PerBooklet: 2,
-    blankLastPage: false
-  });
+test("28. reckon booklets=2: all pages covered", () => {
+  const r = calc.reckon({ pgCount: 16, pagesPerSheet: 2, bookletCount: 2, pagesPerBooklet: 8, padToFit: false });
   assert(r.valid, "expected valid");
-  const all = r.booklets.flatMap(b =>
-    (b.front + "," + b.back).split(",").map(Number).filter(n => n > 0)
-  ).sort((a,b) => a-b);
-  for (let i = 1; i <= 16; i++) {
-    assert(all.includes(i), "missing page " + i);
-  }
+  const all = allPagesFromResult(r)
+    .filter((n) => n > 0)
+    .sort((a, b) => a - b);
+  for (let i = 1; i <= 16; i++) assert(all.includes(i), "missing page " + i);
 });
 
-// ── LAST BOOKLET SMALLER THAN OTHERS ─────────────────────────
-
-test("31. reckon uneven split: last booklet smaller", () => {
-  // 3 booklets from 20 pages pps=2: booklets 1,2 get 2 sheets, last gets 1
-  const r = calc.reckon({
-    pgCount: 20, pagesPerSheet: 2,
-    bookletCount: 3, a4PerBooklet: 2,
-    blankLastPage: false
-  });
+test("29. padToFit=true: blanks are 0 and totalBlankPages computed", () => {
+  const r = calc.reckon({ pgCount: 20, pagesPerSheet: 2, bookletCount: 3, pagesPerBooklet: 8, padToFit: true });
   assert(r.valid, "expected valid");
-  assertEq(r.booklets.length, 3);
-  // all pages covered
-  const all = r.booklets.flatMap(b =>
-    (b.front + "," + b.back).split(",").map(Number).filter(n => n > 0)
-  );
-  assertEq(all.length, 20);
+  assertEq(r.totalBlankPages, 4);
+  const all = allPagesFromResult(r);
+  assert(all.includes(0), "expected blanks (0) in output");
+  const real = all.filter((n) => n > 0).sort((a, b) => a - b);
+  for (let i = 1; i <= 20; i++) assert(real.includes(i), "missing page " + i);
+  assertEq(real.length, 20, "duplicate real pages found");
 });
 
-// ── REVERSE OUTPUT MULTI-BOOKLET ──────────────────────────────
-
-test("32. reverseOutput booklets=2: both backs reversed", () => {
-  const rr = calc.reckon({
-    pgCount: 16, pagesPerSheet: 2,
-    bookletCount: 2, a4PerBooklet: 2,
-    blankLastPage: false
-  });
+test("30. reverseOutput booklets=2: both backs reversed", () => {
+  const rr = calc.reckon({ pgCount: 16, pagesPerSheet: 2, bookletCount: 2, pagesPerBooklet: 8, padToFit: false });
   assert(rr.valid, "expected valid");
   const out = calc.reverseOutput(rr, 2);
   assert(out.valid, "expected valid");
-  [0, 1].forEach(i => {
-    const expected = rr.booklets[i].back
-      .split(",").filter(x => x.length > 0).reverse().join(",");
+  [0, 1].forEach((i) => {
+    const expected = reverseCsv(rr.booklets[i].back);
     assertEq(out.booklets[i].back, expected, "booklet " + i + " back mismatch");
     assertEq(out.booklets[i].front, rr.booklets[i].front, "booklet " + i + " front changed");
   });
 });
 
-// ── BLANK PAGE PADDING EDGE CASES ────────────────────────────
-
-test("33. blankLastPage=true adds minimum padding only", () => {
-  // pgCount=7 pps=2 -> pad to 8 (not 10 or 12)
-  const r = calc.calcBooklet0({ pgCount: 7, pagesPerSheet: 2, blankLastPage: true });
-  assert(r.valid, "expected valid");
-  assertEq(r.volume.paddedPgCount, 8);
+test("31. suggestBookletCount: 0 pages -> 0", () => {
+  assertEq(calc.suggestBookletCount(0, 8), 0);
 });
 
-test("34. pgCount already divisible, blankLastPage=true -> no padding", () => {
-  const r = calc.calcBooklet0({ pgCount: 8, pagesPerSheet: 2, blankLastPage: true });
-  assert(r.valid, "expected valid");
-  assertEq(r.volume.paddedPgCount, 8);
+test("32. suggestBookletCount: 1..8 pages -> 1", () => {
+  assertEq(calc.suggestBookletCount(1, 8), 1);
+  assertEq(calc.suggestBookletCount(8, 8), 1);
 });
 
-// ── FOLDING COUNTS ────────────────────────────────────────────
+test("33. suggestBookletCount: 9 pages with ppb=8 -> 2", () => {
+  assertEq(calc.suggestBookletCount(9, 8), 2);
+});
 
-test("35. pps=4 folds = a4Total (each sheet folded once)", () => {
-  const r = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, blankLastPage: false });
+test("34. foldsTotal equals a4Total for pps=4", () => {
+  const r = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, bookletCount: 1, pagesPerBooklet: 16, padToFit: false });
   assert(r.valid, "expected valid");
   assertEq(r.derived.foldsTotal, r.derived.a4Total);
 });
 
-test("36. pps=8 foldsTotal = a4Total (two folds per sheet -> check model)", () => {
-  const r = calc.calcBooklet0({ pgCount: 32, pagesPerSheet: 8, blankLastPage: false });
+test("35. foldsTotal is positive", () => {
+  const r = calc.calcBooklet0({ pgCount: 32, pagesPerSheet: 8, bookletCount: 1, pagesPerBooklet: 32, padToFit: false });
   assert(r.valid, "expected valid");
-  // foldsTotal may be 2x a4Total for pps=8 — verify model is consistent
-  assert(r.derived.foldsTotal > 0, "foldsTotal must be positive");
-  assert(r.derived.a4Total > 0, "a4Total must be positive");
+  assert(r.derived.foldsTotal > 0);
+});
+
+test("36. calcBooklet1: derived lastBookletPages equals pagesPerBooklet", () => {
+  const r0 = calc.calcBooklet0({ pgCount: 16, pagesPerSheet: 4, bookletCount: 1, pagesPerBooklet: 16, padToFit: false });
+  assert(r0.valid, "expected valid");
+  const r1 = calc.calcBooklet1({ total: r0, bookletCount: 1, pagesPerBooklet: 16 });
+  assert(r1.valid, "expected valid");
+  assertEq(r1.derived.lastBookletPages, 16);
 });
 
 test("37. pagesPerBookletToA4(8, 2) -> 4", () => {
@@ -418,3 +438,37 @@ test("45. round-trip: a4ToPages(pagesPerBookletToA4(8, 2), 2) == 8", () => {
   const a4 = calc.pagesPerBookletToA4(8, 2);
   assertEq(calc.a4ToPages(a4, 2), 8);
 });
+
+test("46. padToFit=true pgCount=300 pps=4 ppb=32 booklets=10 -> blanks > 0", () => {
+  const r = calc.reckon({ pgCount: 300, pagesPerSheet: 4, bookletCount: 10, pagesPerBooklet: 32, padToFit: true });
+  assert(r.valid, "expected valid");
+  assert(r.totalBlankPages > 0, "expected blank pages added");
+});
+
+test("47. padToFit=true: each booklet has exactly pagesPerBooklet tokens (including blanks)", () => {
+  const r = calc.reckon({ pgCount: 20, pagesPerSheet: 2, bookletCount: 3, pagesPerBooklet: 8, padToFit: true });
+  assert(r.valid, "expected valid");
+  for (const b of r.booklets) {
+    const tks = allPagesFromBooklet(b);
+    assertEq(tks.length, 8);
+  }
+});
+
+test("48. padToFit=false pgCount=320 pps=4 ppb=32 booklets=10 -> valid, blanks=0", () => {
+  const r = calc.reckon({ pgCount: 320, pagesPerSheet: 4, bookletCount: 10, pagesPerBooklet: 32, padToFit: false });
+  assert(r.valid, "expected valid");
+  assertEq(r.totalBlankPages, 0);
+});
+
+test("49. padToFit=false pgCount=300 pps=4 ppb=32 booklets=10 -> invalid", () => {
+  const r = calc.reckon({ pgCount: 300, pagesPerSheet: 4, bookletCount: 10, pagesPerBooklet: 32, padToFit: false });
+  assert(!r.valid, "expected invalid");
+});
+
+test("50. pgCount change formula: suggestBookletCount(300, 32) -> 10 (pagesPerBooklet unchanged)", () => {
+  const ppb = 32;
+  const bc = calc.suggestBookletCount(300, ppb);
+  assertEq(ppb, 32);
+  assertEq(bc, 10);
+});
+

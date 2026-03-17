@@ -4,21 +4,24 @@ update: after each work session
 owner: print_book
 ---
 # Status
-last_updated: 2026-03-17T22:10:34
+last_updated: 2026-03-17T22:51:14
 done:
   - src/index.html (single page UI)
   - src/css/style.css (styles)
   - src/js/calc.js (pure calc)
   - src/js/i18n.js (RU/EN strings + help)
   - src/js/book.js (DOM glue)
-  - tests/test_calc.js (15 tests, Node)
+  - tests/test_calc.js (50 tests, Node)
   - reverse-feed printer output mode
   - result labels update on language switch
   - help: rewritten (RU/EN, no internal links, printer photo placeholders)
   - validation errors + fix recommendations in UI
   - SEO: meta/OG/JSON-LD, semantic HTML, robots.txt, sitemap.xml, i18n URLs
-  - bidirectional a4PerBooklet <-> pagesPerBooklet inputs
+  - a4PerBooklet removed from form (computed output only)
   - binding advisory with home-use thresholds
+  - pad-to-fit all signatures (blank pages per signature)
+  - 300-page defaults on load (pgCount=300, pps=4, booklets=10, pagesPerBooklet=32, padToFit=true)
+  - pgCount change updates bookletCount only (pagesPerBooklet stable)
 in_progress:
   - none
 blocked:

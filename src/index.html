@@ -58,32 +58,26 @@
         <div class="grid">
           <label class="field">
             <div class="field__label" data-i18n="pgCountLabel"></div>
-            <input class="field__input" id="pgCount" type="number" min="0" step="1" value="8" />
+            <input class="field__input" id="pgCount" type="number" min="0" step="1" value="300" />
           </label>
 
           <label class="field">
             <div class="field__label" data-i18n="pagesPerSheetLabel"></div>
             <select class="field__input" id="pagesPerSheet">
               <option value="2">2</option>
-              <option value="4">4</option>
+              <option value="4" selected>4</option>
               <option value="8">8</option>
             </select>
           </label>
 
           <label class="field">
             <div class="field__label" data-i18n="bookletCountLabel"></div>
-            <input class="field__input" id="bookletCount" type="number" min="1" step="1" value="1" />
-          </label>
-
-          <label class="field">
-            <div class="field__label" data-i18n="a4PerBookletLabel"></div>
-            <input class="field__input" id="a4PerBooklet" type="number" min="1" step="1" value="1" />
-            <div class="field__error" id="a4PerBookletError" hidden></div>
+            <input class="field__input" id="bookletCount" type="number" min="1" step="1" value="10" />
           </label>
 
           <label class="field">
             <div class="field__label" data-i18n="pagesPerSignature"></div>
-            <input class="field__input" id="pagesPerBooklet" type="number" min="1" step="1" value="2" />
+            <input class="field__input" id="pagesPerBooklet" type="number" min="1" step="1" value="32" />
             <div class="field__error" id="pagesPerBookletError" hidden></div>
             <div class="field-advisory" id="pagesPerBookletAdvisory" hidden></div>
             <div class="field-hint" data-i18n="hintPagesPerBooklet"></div>
@@ -104,8 +98,8 @@
           </div>
 
           <label class="check">
-            <input id="blankLastPage" type="checkbox" />
-            <span class="check__label" data-i18n="blankLastPageLabel"></span>
+            <input id="padToFit" type="checkbox" checked />
+            <span class="check__label" data-i18n="padToFit"></span>
           </label>
         </div>
 
@@ -118,6 +112,13 @@
           <div class="derived__row">
             <span class="derived__k" data-i18n="a4TotalLabel"></span>
             <span class="derived__v" id="a4Total"></span>
+          </div>
+          <div class="derived__row">
+            <span class="derived__k" data-i18n="a4PerBookletLabel"></span>
+            <span class="derived__v" id="a4PerBookletValue"></span>
+          </div>
+          <div class="derived__row" id="blankPagesRow" hidden>
+            <span class="derived__v" id="blankPagesAdded"></span>
           </div>
           <div class="derived__row">
             <span class="derived__k" data-i18n="foldsTotalLabel"></span>

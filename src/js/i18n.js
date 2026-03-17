@@ -10,13 +10,13 @@
 </p>
 
 <h3>▶ Ввод</h3>
-<ul>
-  <li><b>Страниц в документе</b>: общее количество страниц.</li>
-  <li><b>Страниц на лист</b>: 2 / 4 / 8 (на одной стороне).</li>
-  <li><b>Тетрадей</b> и <b>Листов A4 на тетрадь</b>: позволяют разбить объем на несколько тетрадей.</li>
-  <li><b>Пустая последняя страница</b>: если включено, недостающие позиции заполняются последней страницей.</li>
-  <li><b>Подача бумаги</b>: <b>Стандартная подача</b> или <b>Обратная подача бумаги</b> (см. ниже).</li>
-</ul>
+  <ul>
+    <li><b>Страниц в документе</b>: общее количество страниц.</li>
+    <li><b>Страниц на лист</b>: 2 / 4 / 8 (на одной стороне).</li>
+  <li><b>Тетрадей</b> и <b>Страниц в тетради</b>: позволяют разбить объем на несколько тетрадей.</li>
+  <li><b>Добить пустыми страницами</b>: если включено, недостающие страницы в каждой тетради заполняются пустыми (0).</li>
+    <li><b>Подача бумаги</b>: <b>Стандартная подача</b> или <b>Обратная подача бумаги</b> (см. ниже).</li>
+  </ul>
 
 <h3>▶ Масштабирование</h3>
 <p>
@@ -37,7 +37,7 @@
 <h3>▶ Корректность объема</h3>
 <p>
   Для корректной нумерации объем должен быть кратен 4 / 8 / 16 (в зависимости от режима).
-  Если объем некратный, включайте "пустую" последнюю страницу.
+  Если объем не укладывается ровно, включайте "добить пустыми страницами".
 </p>
 
 <h3>▶ Как читать результат</h3>
@@ -109,13 +109,13 @@
 </p>
 
 <h3>▶ Inputs</h3>
-<ul>
-  <li><b>Document pages</b>: total pages in the document.</li>
-  <li><b>Pages per sheet</b>: 2 / 4 / 8 (per side).</li>
-  <li><b>Booklets</b> and <b>A4 sheets per booklet</b>: split the volume into multiple signatures.</li>
-  <li><b>Allow blank last page</b>: if enabled, missing slots are filled using the last page number.</li>
-  <li><b>Paper feed</b>: <b>Standard feed</b> or <b>Reverse paper feed</b> (see below).</li>
-</ul>
+  <ul>
+    <li><b>Document pages</b>: total pages in the document.</li>
+    <li><b>Pages per sheet</b>: 2 / 4 / 8 (per side).</li>
+  <li><b>Booklets</b> and <b>Pages per signature</b>: split the volume into multiple signatures.</li>
+  <li><b>Pad with blank pages</b>: if enabled, missing pages in each signature become blanks (0).</li>
+    <li><b>Paper feed</b>: <b>Standard feed</b> or <b>Reverse paper feed</b> (see below).</li>
+  </ul>
 
 <h3>▶ Scaling</h3>
 <p>
@@ -136,7 +136,7 @@
 <h3>▶ Volume Correctness</h3>
 <p>
   For correct numbering, the volume must be divisible by 4 / 8 / 16 (depending on the mode).
-  If it is not divisible, enable the blank last page option.
+  If it does not fit exactly, enable pad with blank pages.
 </p>
 
 <h3>▶ Reading the Output</h3>
@@ -224,12 +224,13 @@
       advisoryGoodSize: "Хорошо — подходит и для степлера, и для сшивки.",
       advisoryTooSmall:
         "Маленькая тетрадь — потребуется много тетрадей\nдля книги.",
-      blankLastPageLabel: "Пустая последняя страница (разрешить)",
+      padToFit: "Добить пустыми страницами",
       validationLabel: "Проверка объема",
       a4TotalLabel: "A4 всего",
       foldsTotalLabel: "Сгибов всего",
       pagesPerBookletLabel: "Страниц в тетради",
       lastBookletPagesLabel: "Страниц в последней тетради",
+      blankPagesAdded: "Добавлено пустых страниц: {n}",
       resultsTitle: "Результат",
       side1: "Сторона 1",
       side2: "Сторона 2",
@@ -241,17 +242,14 @@
       errPgCountInt: "Введите целое число страниц.",
       errPgCountMin: "Минимум: {min}.",
       errPps: "Выберите 2, 4 или 8 страниц на лист.",
-      errVolumeDivisible: "Объем должен быть кратен {unit} (для {pps} страниц на лист).",
-      recEnableBlankLastPage: "Включите \"Пустая последняя страница\".",
-      recNearestVolume: "Ближайшие корректные значения: {down} или {up}.",
+      errPagesPerBookletInt: "Введите целое число страниц в тетради.",
+      errPagesPerBookletMin: "Минимум страниц в тетради: {min}.",
       errBookletCountInt: "Введите целое число тетрадей.",
       errBookletMin: "Минимум тетрадей: {min}.",
-      errBookletTooMany: "Слишком много тетрадей для текущего объема.",
-      recMaxBooklets: "Максимум тетрадей: {max}.",
-      errA4PerBookletInt: "Введите целое число листов A4 на тетрадь.",
-      errA4PerBookletMin: "Минимум листов A4 на тетрадь: {min}.",
-      errA4PerBookletTooLarge: "Слишком много листов A4 на тетрадь для текущего объема.",
-      recMaxA4PerBooklet: "При {booklets} тетрадях максимум листов A4 на тетрадь: {max}.",
+      errCapacityTooSmall: "Тетради не вмещают документ.",
+      recSuggestedBooklets: "Рекомендуемое число тетрадей: {n}.",
+      errExactVolume: "Без добивки должно быть ровно {expected} страниц.",
+      recEnablePadToFit: "Включите \"Добить пустыми страницами\".",
       errorNotDivisible: "Должно делиться на {n}",
       errorExceedsDoc: "Превышает объём документа",
       errorExceedsSheets: "Тетради не вмещают все листы",
@@ -284,12 +282,13 @@
       advisoryGoodSize: "Good — works for both staple and hand-sewn binding.",
       advisoryTooSmall:
         "Small signature — you will need many signatures\nfor a full book.",
-      blankLastPageLabel: "Allow blank last page",
+      padToFit: "Pad with blank pages",
       validationLabel: "Volume validation",
       a4TotalLabel: "A4 total",
       foldsTotalLabel: "Folds total",
       pagesPerBookletLabel: "Pages per booklet",
       lastBookletPagesLabel: "Last booklet pages",
+      blankPagesAdded: "Blank pages added: {n}",
       resultsTitle: "Results",
       side1: "Side 1",
       side2: "Side 2",
@@ -301,17 +300,14 @@
       errPgCountInt: "Enter an integer page count.",
       errPgCountMin: "Minimum: {min}.",
       errPps: "Choose 2, 4, or 8 pages per sheet.",
-      errVolumeDivisible: "Volume must be divisible by {unit} (for {pps} pages per sheet).",
-      recEnableBlankLastPage: "Enable \"Allow blank last page\".",
-      recNearestVolume: "Nearest valid values: {down} or {up}.",
+      errPagesPerBookletInt: "Enter an integer pages per signature.",
+      errPagesPerBookletMin: "Minimum pages per signature: {min}.",
       errBookletCountInt: "Enter an integer booklet count.",
       errBookletMin: "Minimum booklets: {min}.",
-      errBookletTooMany: "Too many booklets for current volume.",
-      recMaxBooklets: "Max booklets: {max}.",
-      errA4PerBookletInt: "Enter an integer A4 sheets per booklet.",
-      errA4PerBookletMin: "Minimum A4 sheets per booklet: {min}.",
-      errA4PerBookletTooLarge: "Too many A4 sheets per booklet for current volume.",
-      recMaxA4PerBooklet: "With {booklets} booklets, max A4 sheets per booklet: {max}.",
+      errCapacityTooSmall: "Signatures do not fit the document.",
+      recSuggestedBooklets: "Suggested booklet count: {n}.",
+      errExactVolume: "Without padding, total must be exactly {expected} pages.",
+      recEnablePadToFit: "Enable \"Pad with blank pages\".",
       errorNotDivisible: "Must be divisible by {n}",
       errorExceedsDoc: "Exceeds document size",
       errorExceedsSheets: "Signatures exceed total sheets",

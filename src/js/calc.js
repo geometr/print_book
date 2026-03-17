@@ -15,49 +15,76 @@ function validatePagesPerSheet(pagesPerSheet) {
   return pagesPerSheet === 2 || pagesPerSheet === 4 || pagesPerSheet === 8;
 }
 
+function unitPages(pagesPerSheet) {
+  // Pages per physical A4 sheet (both sides).
+  return pagesPerSheet * 2;
+}
+
 /**
- * calcBooklet0(pgCount, pagesPerSheet)
- * Initial volume validation and derived values.
+ * calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit })
+ * Validates inputs and returns volume + derived totals.
+ *
+ * padToFit=false:
+ * - exact fit required: pgCount == bookletCount * pagesPerBooklet
+ *
+ * padToFit=true:
+ * - pads with blank pages to: bookletCount * pagesPerBooklet
+ * - output pages beyond pgCount are treated as blank pages (0)
  */
-function calcBooklet0({ pgCount, pagesPerSheet, blankLastPage }) {
+function calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit }) {
   const errors = [];
+
   if (!isInt(pgCount)) errors.push("pgCount must be an integer");
   if (!validatePagesPerSheet(pagesPerSheet)) errors.push("pagesPerSheet must be 2, 4, or 8");
-  if (typeof blankLastPage !== "boolean") errors.push("blankLastPage must be boolean");
+  if (!isInt(bookletCount) || bookletCount < 1) errors.push("bookletCount must be >= 1");
+  if (!isInt(pagesPerBooklet) || pagesPerBooklet < 1) errors.push("pagesPerBooklet must be >= 1");
+  if (typeof padToFit !== "boolean") errors.push("padToFit must be boolean");
 
-  if (errors.length) {
-    return { valid: false, errors };
+  if (errors.length) return { valid: false, errors };
+
+  if (pgCount < 2) return { valid: false, errors: ["pgCount must be >= 2"] };
+
+  const unit = unitPages(pagesPerSheet);
+  if (pagesPerBooklet % unit !== 0) {
+    return { valid: false, errors: ["pagesPerBooklet must be divisible by pagesPerSheet*2"] };
   }
 
-  if (pgCount < 2) {
-    return { valid: false, errors: ["pgCount must be >= 2"] };
+  const capacityPages = bookletCount * pagesPerBooklet;
+  if (!Number.isFinite(capacityPages) || capacityPages < 1) {
+    return { valid: false, errors: ["capacityPages overflow"] };
   }
 
-  // Display padding (matches the provided test plan).
-  const displayDivisibleBy = pagesPerSheet;
-  const paddedPgCount = blankLastPage ? ceilDiv(pgCount, displayDivisibleBy) * displayDivisibleBy : pgCount;
-
-  // Compute padding (closer to inspiration constraints).
-  const computeDivisibleBy = pagesPerSheet * 2;
-  const computePgCount = blankLastPage ? ceilDiv(pgCount, computeDivisibleBy) * computeDivisibleBy : pgCount;
-
-  const computeValid = pgCount % computeDivisibleBy === 0 || blankLastPage;
-  if (!computeValid) {
-    return {
-      valid: false,
-      errors: ["volume is not divisible by required unit"],
-      volume: { pgCount, paddedPgCount, computePgCount, displayDivisibleBy, computeDivisibleBy },
-    };
+  if (padToFit) {
+    if (capacityPages < pgCount) {
+      return { valid: false, errors: ["bookletCount/pagesPerBooklet do not fit pgCount"] };
+    }
+  } else {
+    if (capacityPages !== pgCount) {
+      return { valid: false, errors: ["pgCount must equal bookletCount*pagesPerBooklet when padToFit=false"] };
+    }
   }
 
-  const a4Sheets = computePgCount / computeDivisibleBy;
-  const a4Total = a4Sheets * 2;
+  const paddedPgCount = padToFit ? capacityPages : pgCount;
+  const totalBlankPages = padToFit ? paddedPgCount - pgCount : 0;
+
+  const a4Sheets = paddedPgCount / unit; // physical sheets
+  const a4Total = a4Sheets * 2; // A4 sides (duplex pages)
   const foldsTotal = a4Sheets * 2;
 
   return {
     valid: true,
     errors: [],
-    volume: { pgCount, paddedPgCount, computePgCount, displayDivisibleBy, computeDivisibleBy },
+    volume: {
+      pgCount,
+      paddedPgCount,
+      pagesPerSheet,
+      bookletCount,
+      pagesPerBooklet,
+      unit,
+      capacityPages,
+      totalBlankPages,
+      padToFit,
+    },
     derived: {
       a4Total,
       foldsTotal,
@@ -66,84 +93,54 @@ function calcBooklet0({ pgCount, pagesPerSheet, blankLastPage }) {
 }
 
 /**
- * calcBooklet1(bookletCount, a4PerBooklet, pagesPerSheet)
- * Recompute values for booklet split.
+ * calcBooklet1({ total, bookletCount, pagesPerBooklet })
+ * Recomputes split-derived values for UI.
  */
-function calcBooklet1({ total, bookletCount, a4PerBooklet }) {
-  const errors = [];
-  if (!total || total.valid !== true) errors.push("total must be a valid calcBooklet0 result");
-  if (!isInt(bookletCount) || bookletCount < 1) errors.push("bookletCount must be >= 1");
-  if (!isInt(a4PerBooklet) || a4PerBooklet < 1) errors.push("a4PerBooklet must be >= 1");
-  if (errors.length) return { valid: false, errors };
+function calcBooklet1({ total, bookletCount, pagesPerBooklet }) {
+  if (!total || total.valid !== true) return { valid: false, errors: ["total must be valid"] };
+  if (!isInt(bookletCount) || bookletCount < 1) return { valid: false, errors: ["bookletCount must be >= 1"] };
+  if (!isInt(pagesPerBooklet) || pagesPerBooklet < 1) return { valid: false, errors: ["pagesPerBooklet must be >= 1"] };
 
-  const pagesPerSheet = total.volume.displayDivisibleBy;
+  const pagesPerSheet = total.volume.pagesPerSheet;
+  const unit = unitPages(pagesPerSheet);
+  if (pagesPerBooklet % unit !== 0) return { valid: false, errors: ["pagesPerBooklet must be divisible by pagesPerSheet*2"] };
+
+  const a4PerBooklet = pagesPerBooklet / pagesPerSheet; // A4 sides per booklet
   const foldsPerA4 = pagesPerSheet / 2;
-
-  const computeA4Sheets = total.volume.computePgCount / (pagesPerSheet * 2);
-
-  if (bookletCount > computeA4Sheets) {
-    return { valid: false, errors: ["bookletCount exceeds total A4 sheets"] };
-  }
-
-  if (a4PerBooklet > computeA4Sheets) {
-    return { valid: false, errors: ["a4PerBooklet exceeds total A4 sheets"] };
-  }
-
-  if (bookletCount > 1 && a4PerBooklet * (bookletCount - 1) >= computeA4Sheets) {
-    return { valid: false, errors: ["split exceeds total A4 sheets"] };
-  }
-
-  // In this project, bookletCount is the total count including the last (possibly smaller) booklet.
-  // The first (bookletCount - 1) booklets use a4PerBooklet, the last uses the remainder.
-  const firstBooklets = Math.max(0, bookletCount - 1);
-  const lastBookletSheets = computeA4Sheets - a4PerBooklet * firstBooklets;
-  if (lastBookletSheets < 1) {
-    return { valid: false, errors: ["bookletCount/a4PerBooklet exceed total volume"] };
-  }
-
-  const foldsPerBooklet = a4PerBooklet * foldsPerA4;
-  const pagesPerBooklet = a4PerBooklet * pagesPerSheet * 2;
-
-  const foldsPerLastBooklet = lastBookletSheets * foldsPerA4;
-  const lastBookletPages = lastBookletSheets * pagesPerSheet * 2;
+  const foldsPerBooklet = (pagesPerBooklet / unit) * foldsPerA4;
 
   return {
     valid: true,
     errors: [],
-    meta: {
-      computeA4Sheets,
-    },
     derived: {
+      a4PerBooklet,
       foldsPerBooklet,
       pagesPerBooklet,
-      a4PerLastBooklet: lastBookletSheets,
-      foldsPerLastBooklet,
-      lastBookletPages,
+      lastBookletPages: pagesPerBooklet,
     },
   };
 }
 
 /**
- * reckon(bookletCount, a4PerBooklet, pagesPerSheet, blankLastPage)
- * Ported page distribution logic (based on inspiration JS).
+ * reckon({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit })
+ * Page distribution.
+ *
+ * Output structure:
+ * - booklets: [{ index, front, back }]
+ * - totalBlankPages: how many blank pages were added (0 when padToFit=false)
  */
-function reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastPage }) {
-  const total = calcBooklet0({ pgCount, pagesPerSheet, blankLastPage });
+function reckon({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit }) {
+  const total = calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit });
   if (!total.valid) return { valid: false, errors: total.errors || ["invalid volume"] };
 
-  const split = calcBooklet1({ total, bookletCount, a4PerBooklet });
-  if (!split.valid) return { valid: false, errors: split.errors || ["invalid split"] };
-
-  const computeDivisibleBy = pagesPerSheet * 2;
-  const computePgCount = total.volume.computePgCount;
-  const a4SheetsTotal = computePgCount / computeDivisibleBy;
+  const unit = unitPages(pagesPerSheet);
+  const paddedPgCount = total.volume.paddedPgCount;
+  const a4SheetsTotal = paddedPgCount / unit;
   const foldsPerA4 = pagesPerSheet / 2;
-  const pagesPerBooklet = split.derived.pagesPerBooklet;
-  const lastBookletSheets = split.derived.a4PerLastBooklet;
-  const lastBookletPages = split.derived.lastBookletPages;
+  const sheetsPerBooklet = pagesPerBooklet / unit;
   const bookletMax = bookletCount;
 
-  // 1-based arrays to mirror the original.
+  // 1-based arrays to match inspiration indexing.
   const prnDistrU = [];
   const pagesStrComU = [];
   const pagesStrCom = [];
@@ -152,8 +149,8 @@ function reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastP
     const offset = (i1 - 1) * pagesPerBooklet;
     prnDistrU[i1] = [];
 
-    const sheetsInThisBooklet = i1 === bookletMax ? lastBookletSheets : a4PerBooklet;
-    const pagesInThisBooklet = i1 === bookletMax ? lastBookletPages : pagesPerBooklet;
+    const sheetsInThisBooklet = sheetsPerBooklet;
+    const pagesInThisBooklet = pagesPerBooklet;
 
     for (let j1 = 1; j1 <= sheetsInThisBooklet; j1++) {
       prnDistrU[i1][j1] = [];
@@ -167,9 +164,8 @@ function reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastP
         const d = pagesInThisBooklet - 1 - (j - 1) * 2 + offset;
 
         const row = [null, a, b, c, d];
-        // Clamp pages beyond original page count to the last page (blank page behavior).
         for (let k = 1; k <= 4; k++) {
-          if (row[k] > pgCount) row[k] = pgCount;
+          if (row[k] > pgCount) row[k] = 0;
         }
 
         prnDistrU[i1][j1][j2] = row;
@@ -184,7 +180,7 @@ function reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastP
     pagesStrCom[i1][2] = "";
     pagesStrCom[i1][3] = "";
 
-    const sheetsInThisBooklet = i1 === bookletMax ? lastBookletSheets : a4PerBooklet;
+    const sheetsInThisBooklet = sheetsPerBooklet;
 
     for (let j1 = 1; j1 <= sheetsInThisBooklet; j1++) {
       pagesStrComU[i1][j1] = [];
@@ -239,6 +235,7 @@ function reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastP
     errors: [],
     prnDistrU,
     booklets,
+    totalBlankPages: total.volume.totalBlankPages,
     meta: {
       a4SheetsTotal,
       foldsPerA4,
@@ -248,7 +245,7 @@ function reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastP
 
 /**
  * pagesPerBookletToA4(pagesPerBooklet, pagesPerSheet)
- * Convert pages-per-booklet to A4-sheets-per-booklet.
+ * Convert pages-per-booklet to A4-sides-per-booklet.
  * Returns null if pagesPerBooklet is not divisible by pagesPerSheet or <= 0.
  */
 function pagesPerBookletToA4(pagesPerBooklet, pagesPerSheet) {
@@ -260,13 +257,23 @@ function pagesPerBookletToA4(pagesPerBooklet, pagesPerSheet) {
 
 /**
  * a4ToPages(a4PerBooklet, pagesPerSheet)
- * Convert A4-sheets-per-booklet to pages-per-booklet.
+ * Convert A4-sides-per-booklet to pages-per-booklet.
  * Returns null if a4PerBooklet <= 0.
  */
 function a4ToPages(a4PerBooklet, pagesPerSheet) {
   if (!isInt(a4PerBooklet) || a4PerBooklet <= 0) return null;
   if (!validatePagesPerSheet(pagesPerSheet)) return null;
   return a4PerBooklet * pagesPerSheet;
+}
+
+/**
+ * suggestBookletCount(pgCount, pagesPerBooklet)
+ * Returns the minimum booklet count to fit pgCount pages when each booklet has pagesPerBooklet pages.
+ */
+function suggestBookletCount(pgCount, pagesPerBooklet) {
+  if (!isInt(pgCount) || pgCount < 0) return null;
+  if (!isInt(pagesPerBooklet) || pagesPerBooklet <= 0) return null;
+  return ceilDiv(pgCount, pagesPerBooklet);
 }
 
 /**
@@ -299,10 +306,19 @@ function reverseOutput(pagesStrCom, bookletCount) {
   };
 }
 
-const api = { calcBooklet0, calcBooklet1, reckon, pagesPerBookletToA4, a4ToPages, reverseOutput };
+const api = {
+  calcBooklet0,
+  calcBooklet1,
+  reckon,
+  pagesPerBookletToA4,
+  a4ToPages,
+  suggestBookletCount,
+  reverseOutput,
+};
 
 if (typeof module !== "undefined" && module.exports) {
   module.exports = api;
 } else {
   window.Calc = api;
 }
+
