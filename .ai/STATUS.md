@@ -4,7 +4,7 @@ update: after each work session
 owner: print_book
 ---
 # Status
-last_updated: 2026-03-18T00:13:53
+last_updated: 2026-03-18T00:18:55
 done:
   - src/index.html (single page UI)
   - src/css/style.css (styles)
@@ -27,6 +27,7 @@ done:
   - pad pages numbered as N+1.. (no zero placeholders)
   - padToFit toggle aligned to signature row
   - padToFit field label spacer (blank label for grid alignment)
+  - padToFit grid item aligned to top
 in_progress:
   - none
 blocked:

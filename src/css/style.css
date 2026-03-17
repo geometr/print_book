@@ -107,6 +107,10 @@ body {
   color: var(--danger);
 }
 
+.field--top {
+  align-self: start;
+}
+
 .field-advisory {
   font-size: 0.85em;
   color: #b45309;
