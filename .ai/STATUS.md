@@ -4,7 +4,7 @@ update: after each work session
 owner: print_book
 ---
 # Status
-last_updated: 2026-03-18T00:18:55
+last_updated: 2026-03-18T00:29:11
 done:
   - src/index.html (single page UI)
   - src/css/style.css (styles)
@@ -28,6 +28,9 @@ done:
   - padToFit toggle aligned to signature row
   - padToFit field label spacer (blank label for grid alignment)
   - padToFit grid item aligned to top
+  - clean system UI (no gradients/shadows)
+  - light/dark theme toggle (localStorage + prefers-color-scheme)
+  - large tap targets (44px) and high contrast layout
 in_progress:
   - none
 blocked:

@@ -39,116 +39,150 @@
         "inLanguage": ["ru", "en"]
       }
     </script>
+
     <link rel="stylesheet" href="css/style.css" />
     <script defer src="js/i18n.js"></script>
     <script defer src="js/calc.js"></script>
     <script defer src="js/book.js"></script>
   </head>
   <body>
-    <header class="topbar">
-      <h1 class="topbar__title" data-i18n="h1"></h1>
-      <div class="topbar__actions">
-        <button type="button" class="btn" id="lang-ru">RU</button>
-        <button type="button" class="btn" id="lang-en">EN</button>
-      </div>
-    </header>
-
-    <main class="container">
-      <section class="card">
-        <div class="grid">
-          <label class="field">
-            <div class="field__label" data-i18n="pgCountLabel"></div>
-            <input class="field__input" id="pgCount" type="number" min="0" step="1" value="300" />
-          </label>
-
-          <label class="field">
-            <div class="field__label" data-i18n="pagesPerSheetLabel"></div>
-            <select class="field__input" id="pagesPerSheet">
-              <option value="2">2</option>
-              <option value="4" selected>4</option>
-              <option value="8">8</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <div class="field__label" data-i18n="pagesPerSignature"></div>
-            <input class="field__input" id="pagesPerBooklet" type="number" min="1" step="1" value="32" />
-            <div class="field__error" id="pagesPerBookletError" hidden></div>
-            <div class="field-advisory" id="pagesPerBookletAdvisory" hidden></div>
-            <div class="field-hint" data-i18n="hintPagesPerBooklet"></div>
-          </label>
-
-          <div class="field field--top">
-            <div class="field__label">&nbsp;</div>
-            <label class="check check--top">
-              <input id="padToFit" type="checkbox" checked />
-              <span class="check__label" data-i18n="padToFit"></span>
+    <div class="app">
+      <header class="app-header">
+        <h1 class="app-header__title" data-i18n="h1"></h1>
+        <div class="app-header__controls">
+          <div class="pill-group" role="group" aria-label="language">
+            <label class="pill">
+              <input type="radio" name="lang" id="lang-ru" value="ru" checked />
+              <span>RU</span>
+            </label>
+            <label class="pill">
+              <input type="radio" name="lang" id="lang-en" value="en" />
+              <span>EN</span>
             </label>
           </div>
+          <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
+        </div>
+      </header>
 
-          <div class="field">
-            <div class="field__label"></div>
-            <div class="seg" role="group" aria-label="paper feed mode">
-              <label class="seg__item">
-                <input type="radio" name="feedMode" id="feed-standard" value="standard" checked />
-                <span data-i18n="feedStandard"></span>
-              </label>
-              <label class="seg__item">
-                <input type="radio" name="feedMode" id="feed-reverse" value="reverse" />
-                <span data-i18n="feedReverse"></span>
-              </label>
+      <main>
+        <section class="section">
+          <h2 class="section-title" data-i18n="title"></h2>
+
+          <div class="form">
+            <div class="field">
+              <div class="field__label" data-i18n="pgCountLabel"></div>
+              <input class="field__input" id="pgCount" type="number" min="0" step="1" value="300" />
+            </div>
+
+            <div class="field">
+              <div class="field__label" data-i18n="pagesPerSheetLabel"></div>
+              <div class="pill-group" role="group" aria-label="pages per sheet">
+                <label class="pill">
+                  <input type="radio" name="pagesPerSheet" value="2" />
+                  <span>2</span>
+                </label>
+                <label class="pill">
+                  <input type="radio" name="pagesPerSheet" value="4" checked />
+                  <span>4</span>
+                </label>
+                <label class="pill">
+                  <input type="radio" name="pagesPerSheet" value="8" />
+                  <span>8</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field__label" data-i18n="pagesPerSignature"></div>
+              <input class="field__input" id="pagesPerBooklet" type="number" min="1" step="1" value="32" />
+              <div class="field__error" id="pagesPerBookletError" hidden></div>
+              <div class="field-advisory" id="pagesPerBookletAdvisory" hidden></div>
+              <div class="field-hint" data-i18n="hintPagesPerBooklet"></div>
+            </div>
+
+            <div class="field">
+              <div class="field__label">&nbsp;</div>
+              <div class="toggle-row" role="group" aria-label="pad to fit">
+                <div class="toggle-row__label" data-i18n="padToFit"></div>
+                <label class="switch">
+                  <input id="padToFit" type="checkbox" checked />
+                  <span class="switch__track"><span class="switch__thumb"></span></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field__label">&nbsp;</div>
+              <div class="pill-group" role="group" aria-label="paper feed mode">
+                <label class="pill">
+                  <input type="radio" name="feedMode" id="feed-standard" value="standard" checked />
+                  <span data-i18n="feedStandard"></span>
+                </label>
+                <label class="pill">
+                  <input type="radio" name="feedMode" id="feed-reverse" value="reverse" />
+                  <span data-i18n="feedReverse"></span>
+                </label>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="derived">
-          <div class="derived__row">
-            <span class="derived__k" data-i18n="validationLabel"></span>
-            <span class="derived__v" id="validationMessage"></span>
-          </div>
-          <div class="derived__details" id="validationDetails" hidden></div>
-          <div class="derived__row">
-            <span class="derived__k" data-i18n="a4TotalLabel"></span>
-            <span class="derived__v" id="a4Total"></span>
-          </div>
-          <div class="derived__row">
-            <span class="derived__k" data-i18n="numberOfSignatures"></span>
-            <span class="derived__v" id="bookletCountValue"></span>
-          </div>
-          <div class="derived__row">
-            <span class="derived__k" data-i18n="a4PerBookletLabel"></span>
-            <span class="derived__v" id="a4PerBookletValue"></span>
-          </div>
-          <div class="derived__row" id="blankPagesRow" hidden>
-            <span class="derived__k" data-i18n="blankPagesAddedLabel"></span>
-            <span class="derived__v" id="blankPagesAdded"></span>
-          </div>
-          <div class="derived__row">
-            <span class="derived__k" data-i18n="foldsTotalLabel"></span>
-            <span class="derived__v" id="foldsTotal"></span>
-          </div>
-          <div class="derived__row">
-            <span class="derived__k" data-i18n="lastBookletPagesLabel"></span>
-            <span class="derived__v" id="lastBookletPages"></span>
-          </div>
-        </div>
-      </section>
+        <section class="section">
+          <h2 class="section-title" data-i18n="resultsTitle"></h2>
 
-      <section class="card">
-        <div class="card__header">
-          <h2 class="card__title" data-i18n="resultsTitle"></h2>
-          <button type="button" class="btn" id="help-toggle"></button>
-        </div>
-        <div id="results"></div>
-        <div class="help" id="help" hidden>
-          <h2 class="help__title" data-i18n="helpTitle"></h2>
-          <div id="help-content"></div>
-        </div>
-      </section>
-    </main>
+          <div class="results-box" aria-live="polite">
+            <div class="result-row">
+              <div class="result-k" data-i18n="validationLabel"></div>
+              <div class="result-v status-badge" id="validationMessage"></div>
+            </div>
 
-    <footer class="footer">
-      <div class="footer__text" data-i18n="footerText"></div>
-    </footer>
+            <div class="details" id="validationDetails" hidden></div>
+
+            <div class="result-row">
+              <div class="result-k" data-i18n="a4TotalLabel"></div>
+              <div class="result-v" id="a4Total"></div>
+            </div>
+
+            <div class="result-row">
+              <div class="result-k" data-i18n="numberOfSignatures"></div>
+              <div class="result-v" id="bookletCountValue"></div>
+            </div>
+
+            <div class="result-row">
+              <div class="result-k" data-i18n="a4PerBookletLabel"></div>
+              <div class="result-v" id="a4PerBookletValue"></div>
+            </div>
+
+            <div class="result-row" id="blankPagesRow" hidden>
+              <div class="result-k" data-i18n="blankPagesAddedLabel"></div>
+              <div class="result-v" id="blankPagesAdded"></div>
+            </div>
+
+            <div class="result-row">
+              <div class="result-k" data-i18n="foldsTotalLabel"></div>
+              <div class="result-v" id="foldsTotal"></div>
+            </div>
+
+            <div class="result-row">
+              <div class="result-k" data-i18n="lastBookletPagesLabel"></div>
+              <div class="result-v" id="lastBookletPages"></div>
+            </div>
+          </div>
+
+          <div id="results"></div>
+
+          <button type="button" class="full-btn" id="help-toggle"></button>
+          <div class="help" id="help" hidden>
+            <h2 data-i18n="helpTitle"></h2>
+            <div id="help-content"></div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="footer__text" data-i18n="footerText"></div>
+      </footer>
+    </div>
   </body>
 </html>
+

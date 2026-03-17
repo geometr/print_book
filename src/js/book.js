@@ -6,6 +6,12 @@
     return document.getElementById(id);
   }
 
+  function getCheckedValue(name, fallback) {
+    const el = document.querySelector('input[name="' + name + '"]:checked');
+    if (!el) return fallback;
+    return el.value;
+  }
+
   function toInt(value) {
     const n = Number(value);
     return Number.isFinite(n) ? Math.trunc(n) : NaN;
@@ -80,6 +86,7 @@
   const state = {
     lang: "ru",
     helpOpen: false,
+    theme: "light",
   };
 
   function t(key) {
@@ -105,6 +112,30 @@
     const helpToggle = byId("help-toggle");
     helpToggle.textContent = state.helpOpen ? t("helpToggleOpen") : t("helpToggleClosed");
     byId("help-content").innerHTML = window.I18N[state.lang].helpHtml;
+  }
+
+  function applyTheme(theme) {
+    state.theme = theme === "dark" ? "dark" : "light";
+    document.documentElement.dataset.theme = state.theme;
+    localStorage.setItem("theme", state.theme);
+    updateThemeToggle();
+  }
+
+  function updateThemeToggle() {
+    const btn = byId("theme-toggle");
+    if (!btn) return;
+    // Spec: ☀ = currently dark (click for light), ☾ = currently light (click for dark)
+    btn.textContent = state.theme === "dark" ? "☀" : "☾";
+  }
+
+  function initTheme() {
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark" || saved === "light") {
+      applyTheme(saved);
+      return;
+    }
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(prefersDark ? "dark" : "light");
   }
 
   function getCanonicalUrl() {
@@ -273,7 +304,7 @@
   }
 
   function onPagesPerBookletChange() {
-    const pagesPerSheet = toInt(byId("pagesPerSheet").value);
+    const pagesPerSheet = toInt(getCheckedValue("pagesPerSheet", "4"));
     const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
     updatePagesPerBookletAdvisory(pagesPerBooklet);
 
@@ -293,7 +324,7 @@
   }
 
   function onPagesPerSheetChange() {
-    const pagesPerSheet = toInt(byId("pagesPerSheet").value);
+    const pagesPerSheet = toInt(getCheckedValue("pagesPerSheet", "4"));
     const pgCount = toInt(byId("pgCount").value);
     const pagesPerBooklet0 = toInt(byId("pagesPerBooklet").value);
 
@@ -325,15 +356,15 @@
 
     for (const b of result.booklets) {
       const wrap = document.createElement("div");
-      wrap.className = "results__booklet";
+      wrap.className = "booklet";
 
       const title = document.createElement("div");
-      title.className = "results__title";
+      title.className = "booklet__title";
       title.textContent = t("booklet") + " " + String(b.index);
       wrap.appendChild(title);
 
       const l1 = document.createElement("div");
-      l1.className = "results__label";
+      l1.className = "booklet__label";
       l1.textContent = t("side1");
       wrap.appendChild(l1);
 
@@ -342,7 +373,7 @@
       wrap.appendChild(p1);
 
       const l2 = document.createElement("div");
-      l2.className = "results__label";
+      l2.className = "booklet__label";
       l2.textContent = t("side2");
       wrap.appendChild(l2);
 
@@ -356,17 +387,17 @@
 
   function recalc() {
     const pgCount = toInt(byId("pgCount").value);
-    const pagesPerSheet = toInt(byId("pagesPerSheet").value);
+    const pagesPerSheet = toInt(getCheckedValue("pagesPerSheet", "4"));
     const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
     const padToFit = byId("padToFit").checked;
-    const feedMode = document.querySelector('input[name="feedMode"]:checked')?.value || "standard";
+    const feedMode = getCheckedValue("feedMode", "standard") || "standard";
 
     updatePagesPerBookletAdvisory(pagesPerBooklet);
 
     const validationEl = byId("validationMessage");
     const v = validateInputs({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit });
     if (!v.ok) {
-      validationEl.className = "derived__v danger";
+      validationEl.className = "result-v status-badge status-badge--bad";
       setText(validationEl, t("invalid"));
       setValidationDetails(v);
       setText(byId("a4Total"), "-");
@@ -379,7 +410,7 @@
       return;
     }
 
-    validationEl.className = "derived__v";
+    validationEl.className = "result-v status-badge status-badge--ok";
     setText(validationEl, t("valid"));
     setValidationDetails({ errors: [], recs: [] });
 
@@ -425,8 +456,14 @@
       setUrlLang(state.lang);
     }
 
-    byId("lang-ru").addEventListener("click", () => setLang("ru"));
-    byId("lang-en").addEventListener("click", () => setLang("en"));
+    initTheme();
+    byId("theme-toggle").addEventListener("click", () => applyTheme(state.theme === "dark" ? "light" : "dark"));
+
+    byId("lang-ru").addEventListener("change", () => setLang("ru"));
+    byId("lang-en").addEventListener("change", () => setLang("en"));
+    // Sync radio state from URL.
+    if (state.lang === "en") byId("lang-en").checked = true;
+    if (state.lang === "ru") byId("lang-ru").checked = true;
 
     byId("help-toggle").addEventListener("click", () => {
       state.helpOpen = !state.helpOpen;
@@ -437,8 +474,9 @@
     byId("pgCount").addEventListener("input", onPgCountChange);
     byId("pgCount").addEventListener("change", onPgCountChange);
 
-    byId("pagesPerSheet").addEventListener("change", onPagesPerSheetChange);
-    byId("pagesPerSheet").addEventListener("input", onPagesPerSheetChange);
+    for (const el of document.querySelectorAll('input[name="pagesPerSheet"]')) {
+      el.addEventListener("change", onPagesPerSheetChange);
+    }
 
     byId("pagesPerBooklet").addEventListener("input", onPagesPerBookletChange);
     byId("pagesPerBooklet").addEventListener("change", onPagesPerBookletChange);
