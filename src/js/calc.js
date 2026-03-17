@@ -247,6 +247,29 @@ function reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastP
 }
 
 /**
+ * pagesPerBookletToA4(pagesPerBooklet, pagesPerSheet)
+ * Convert pages-per-booklet to A4-sheets-per-booklet.
+ * Returns null if pagesPerBooklet is not divisible by pagesPerSheet or <= 0.
+ */
+function pagesPerBookletToA4(pagesPerBooklet, pagesPerSheet) {
+  if (!isInt(pagesPerBooklet) || pagesPerBooklet <= 0) return null;
+  if (!validatePagesPerSheet(pagesPerSheet)) return null;
+  if (pagesPerBooklet % pagesPerSheet !== 0) return null;
+  return pagesPerBooklet / pagesPerSheet;
+}
+
+/**
+ * a4ToPages(a4PerBooklet, pagesPerSheet)
+ * Convert A4-sheets-per-booklet to pages-per-booklet.
+ * Returns null if a4PerBooklet <= 0.
+ */
+function a4ToPages(a4PerBooklet, pagesPerSheet) {
+  if (!isInt(a4PerBooklet) || a4PerBooklet <= 0) return null;
+  if (!validatePagesPerSheet(pagesPerSheet)) return null;
+  return a4PerBooklet * pagesPerSheet;
+}
+
+/**
  * reverseOutput(pagesStrCom, bookletCount)
  * Returns a new reckon()-like output where back-side strings are reversed per booklet.
  * Front-side strings are unchanged.
@@ -276,7 +299,7 @@ function reverseOutput(pagesStrCom, bookletCount) {
   };
 }
 
-const api = { calcBooklet0, calcBooklet1, reckon, reverseOutput };
+const api = { calcBooklet0, calcBooklet1, reckon, pagesPerBookletToA4, a4ToPages, reverseOutput };
 
 if (typeof module !== "undefined" && module.exports) {
   module.exports = api;

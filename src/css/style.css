@@ -101,6 +101,12 @@ body {
   color: var(--text);
 }
 
+.field__error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--danger);
+}
+
 .seg {
   display: flex;
   border: 1px solid var(--border);

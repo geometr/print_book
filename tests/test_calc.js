@@ -381,3 +381,40 @@ test("36. pps=8 foldsTotal = a4Total (two folds per sheet -> check model)", () =
   assert(r.derived.foldsTotal > 0, "foldsTotal must be positive");
   assert(r.derived.a4Total > 0, "a4Total must be positive");
 });
+
+test("37. pagesPerBookletToA4(8, 2) -> 4", () => {
+  assertEq(calc.pagesPerBookletToA4(8, 2), 4);
+});
+
+test("38. pagesPerBookletToA4(8, 4) -> 2", () => {
+  assertEq(calc.pagesPerBookletToA4(8, 4), 2);
+});
+
+test("39. pagesPerBookletToA4(8, 8) -> 1", () => {
+  assertEq(calc.pagesPerBookletToA4(8, 8), 1);
+});
+
+test("40. pagesPerBookletToA4(7, 2) -> null", () => {
+  assertEq(calc.pagesPerBookletToA4(7, 2), null);
+});
+
+test("41. pagesPerBookletToA4(0, 2) -> null", () => {
+  assertEq(calc.pagesPerBookletToA4(0, 2), null);
+});
+
+test("42. a4ToPages(4, 2) -> 8", () => {
+  assertEq(calc.a4ToPages(4, 2), 8);
+});
+
+test("43. a4ToPages(2, 4) -> 8", () => {
+  assertEq(calc.a4ToPages(2, 4), 8);
+});
+
+test("44. a4ToPages(0, 2) -> null", () => {
+  assertEq(calc.a4ToPages(0, 2), null);
+});
+
+test("45. round-trip: a4ToPages(pagesPerBookletToA4(8, 2), 2) == 8", () => {
+  const a4 = calc.pagesPerBookletToA4(8, 2);
+  assertEq(calc.a4ToPages(a4, 2), 8);
+});

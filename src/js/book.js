@@ -15,6 +15,24 @@
     el.textContent = String(text);
   }
 
+  function setFieldError(id, message) {
+    const el = byId(id);
+    if (!el) return;
+    if (!message) {
+      el.hidden = true;
+      el.textContent = "";
+      return;
+    }
+    el.hidden = false;
+    el.textContent = String(message);
+  }
+
+  function setInputValue(id, value) {
+    const el = byId(id);
+    if (!el) return;
+    el.value = String(value);
+  }
+
   function validatePagesPerSheet(pagesPerSheet) {
     return pagesPerSheet === 2 || pagesPerSheet === 4 || pagesPerSheet === 8;
   }
@@ -235,6 +253,63 @@
     return { ok: true, errors: [], recs: [] };
   }
 
+  function onA4PerBookletChange() {
+    const pagesPerSheet = toInt(byId("pagesPerSheet").value);
+    const a4PerBooklet = toInt(byId("a4PerBooklet").value);
+    const pages = window.Calc.a4ToPages(a4PerBooklet, pagesPerSheet);
+    if (pages !== null) {
+      setInputValue("pagesPerBooklet", pages);
+      setFieldError("pagesPerBookletError", "");
+    }
+    recalc();
+  }
+
+  function onPagesPerBookletChange() {
+    const pagesPerSheet = toInt(byId("pagesPerSheet").value);
+    const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
+    const a4 = window.Calc.pagesPerBookletToA4(pagesPerBooklet, pagesPerSheet);
+
+    if (a4 === null) {
+      setFieldError("pagesPerBookletError", fmt("errorNotDivisible", { n: pagesPerSheet }));
+      // Do not recalculate. Keep the last valid output visible.
+      return;
+    }
+
+    setFieldError("pagesPerBookletError", "");
+    setInputValue("a4PerBooklet", a4);
+    recalc();
+  }
+
+  function onPagesPerSheetChange() {
+    const pagesPerSheet = toInt(byId("pagesPerSheet").value);
+    const a4PerBooklet = toInt(byId("a4PerBooklet").value);
+    const pages = window.Calc.a4ToPages(a4PerBooklet, pagesPerSheet);
+    if (pages !== null) {
+      setInputValue("pagesPerBooklet", pages);
+      setFieldError("pagesPerBookletError", "");
+    }
+    recalc();
+  }
+
+  function onPgCountChange() {
+    const pgCount = toInt(byId("pgCount").value);
+    const pagesPerSheet = toInt(byId("pagesPerSheet").value);
+    const bookletCount = toInt(byId("bookletCount").value);
+    const blankLastPage = byId("blankLastPage").checked;
+
+    const r0 = window.Calc.calcBooklet0({ pgCount, pagesPerSheet, blankLastPage });
+    if (r0.valid && Number.isInteger(bookletCount) && bookletCount >= 1 && validatePagesPerSheet(pagesPerSheet)) {
+      const a4 = Math.floor(r0.volume.paddedPgCount / pagesPerSheet / bookletCount);
+      const a4PerBooklet = Math.max(1, a4);
+      setInputValue("a4PerBooklet", a4PerBooklet);
+      const pages = window.Calc.a4ToPages(a4PerBooklet, pagesPerSheet);
+      if (pages !== null) setInputValue("pagesPerBooklet", pages);
+      setFieldError("pagesPerBookletError", "");
+    }
+
+    recalc();
+  }
+
   function renderResults(result) {
     const container = byId("results");
     container.innerHTML = "";
@@ -275,6 +350,7 @@
     const pagesPerSheet = toInt(byId("pagesPerSheet").value);
     const bookletCount = toInt(byId("bookletCount").value);
     const a4PerBooklet = toInt(byId("a4PerBooklet").value);
+    const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
     const blankLastPage = byId("blankLastPage").checked;
     const feedMode = document.querySelector('input[name="feedMode"]:checked')?.value || "standard";
 
@@ -284,9 +360,9 @@
       validationEl.className = "derived__v danger";
       setText(validationEl, t("invalid"));
       setValidationDetails(v);
+      setFieldError("a4PerBookletError", "");
       setText(byId("a4Total"), "-");
       setText(byId("foldsTotal"), "-");
-      setText(byId("pagesPerBooklet"), "-");
       setText(byId("lastBookletPages"), "-");
       byId("results").innerHTML = "";
       return;
@@ -300,16 +376,24 @@
     setText(byId("a4Total"), r0.derived.a4Total);
     setText(byId("foldsTotal"), r0.derived.foldsTotal);
 
+    // Inline field checks (do not block rendering).
+    setFieldError("a4PerBookletError", "");
+    if (Number.isInteger(a4PerBooklet) && Number.isInteger(bookletCount) && a4PerBooklet * bookletCount > r0.derived.a4Total) {
+      setFieldError("a4PerBookletError", t("errorExceedsSheets"));
+    }
+
+    if (Number.isInteger(pagesPerBooklet) && pagesPerBooklet > r0.volume.paddedPgCount) {
+      setFieldError("pagesPerBookletError", t("errorExceedsDoc"));
+    }
+
     const r1 = window.Calc.calcBooklet1({ total: r0, bookletCount, a4PerBooklet });
     if (!r1.valid) {
       setValidationDetails({ errors: [t("invalid")], recs: [] });
-      setText(byId("pagesPerBooklet"), "-");
       setText(byId("lastBookletPages"), "-");
       byId("results").innerHTML = "";
       return;
     }
 
-    setText(byId("pagesPerBooklet"), r1.derived.pagesPerBooklet);
     setText(byId("lastBookletPages"), r1.derived.lastBookletPages);
 
     const rr = window.Calc.reckon({ pgCount, pagesPerSheet, bookletCount, a4PerBooklet, blankLastPage });
@@ -346,10 +430,23 @@
       applyI18n();
     });
 
-    for (const id of ["pgCount", "pagesPerSheet", "bookletCount", "a4PerBooklet", "blankLastPage"]) {
-      byId(id).addEventListener("input", recalc);
-      byId(id).addEventListener("change", recalc);
-    }
+    byId("pgCount").addEventListener("input", onPgCountChange);
+    byId("pgCount").addEventListener("change", onPgCountChange);
+
+    byId("pagesPerSheet").addEventListener("change", onPagesPerSheetChange);
+    byId("pagesPerSheet").addEventListener("input", onPagesPerSheetChange);
+
+    byId("bookletCount").addEventListener("input", recalc);
+    byId("bookletCount").addEventListener("change", recalc);
+
+    byId("a4PerBooklet").addEventListener("input", onA4PerBookletChange);
+    byId("a4PerBooklet").addEventListener("change", onA4PerBookletChange);
+
+    byId("pagesPerBooklet").addEventListener("input", onPagesPerBookletChange);
+    byId("pagesPerBooklet").addEventListener("change", onPagesPerBookletChange);
+
+    byId("blankLastPage").addEventListener("input", recalc);
+    byId("blankLastPage").addEventListener("change", recalc);
 
     for (const id of ["feed-standard", "feed-reverse"]) {
       byId(id).addEventListener("change", recalc);
@@ -357,6 +454,7 @@
 
     applyI18n();
     applySeo();
+    onPagesPerSheetChange();
     recalc();
   }
 
