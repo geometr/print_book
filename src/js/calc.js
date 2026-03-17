@@ -21,22 +21,34 @@ function unitPages(pagesPerSheet) {
 }
 
 /**
- * calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit })
+ * suggestBookletCount(pgCount, pagesPerBooklet)
+ * Returns the minimum signature count to fit pgCount pages when each signature has pagesPerBooklet pages.
+ */
+function suggestBookletCount(pgCount, pagesPerBooklet) {
+  if (!isInt(pgCount) || pgCount < 0) return null;
+  if (!isInt(pagesPerBooklet) || pagesPerBooklet <= 0) return null;
+  return ceilDiv(pgCount, pagesPerBooklet);
+}
+
+/**
+ * calcBooklet0({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit })
  * Validates inputs and returns volume + derived totals.
  *
+ * bookletCount is computed as:
+ * - bookletCount = ceil(pgCount / pagesPerBooklet)
+ *
  * padToFit=false:
- * - exact fit required: pgCount == bookletCount * pagesPerBooklet
+ * - exact fit required: pgCount must be divisible by pagesPerBooklet
  *
  * padToFit=true:
  * - pads with blank pages to: bookletCount * pagesPerBooklet
  * - output pages beyond pgCount are treated as blank pages (0)
  */
-function calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit }) {
+function calcBooklet0({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit }) {
   const errors = [];
 
   if (!isInt(pgCount)) errors.push("pgCount must be an integer");
   if (!validatePagesPerSheet(pagesPerSheet)) errors.push("pagesPerSheet must be 2, 4, or 8");
-  if (!isInt(bookletCount) || bookletCount < 1) errors.push("bookletCount must be >= 1");
   if (!isInt(pagesPerBooklet) || pagesPerBooklet < 1) errors.push("pagesPerBooklet must be >= 1");
   if (typeof padToFit !== "boolean") errors.push("padToFit must be boolean");
 
@@ -49,19 +61,15 @@ function calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, p
     return { valid: false, errors: ["pagesPerBooklet must be divisible by pagesPerSheet*2"] };
   }
 
+  const bookletCount = ceilDiv(pgCount, pagesPerBooklet);
   const capacityPages = bookletCount * pagesPerBooklet;
-  if (!Number.isFinite(capacityPages) || capacityPages < 1) {
-    return { valid: false, errors: ["capacityPages overflow"] };
-  }
 
-  if (padToFit) {
-    if (capacityPages < pgCount) {
-      return { valid: false, errors: ["bookletCount/pagesPerBooklet do not fit pgCount"] };
-    }
-  } else {
-    if (capacityPages !== pgCount) {
-      return { valid: false, errors: ["pgCount must equal bookletCount*pagesPerBooklet when padToFit=false"] };
-    }
+  if (!padToFit && capacityPages !== pgCount) {
+    return {
+      valid: false,
+      errors: ["pgCount must be divisible by pagesPerBooklet when padToFit=false"],
+      volume: { pgCount, pagesPerSheet, pagesPerBooklet, bookletCount, capacityPages, unit, padToFit },
+    };
   }
 
   const paddedPgCount = padToFit ? capacityPages : pgCount;
@@ -78,8 +86,8 @@ function calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, p
       pgCount,
       paddedPgCount,
       pagesPerSheet,
-      bookletCount,
       pagesPerBooklet,
+      bookletCount,
       unit,
       capacityPages,
       totalBlankPages,
@@ -93,75 +101,45 @@ function calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, p
 }
 
 /**
- * calcBooklet1({ total, bookletCount, pagesPerBooklet })
- * Recomputes split-derived values for UI.
- */
-function calcBooklet1({ total, bookletCount, pagesPerBooklet }) {
-  if (!total || total.valid !== true) return { valid: false, errors: ["total must be valid"] };
-  if (!isInt(bookletCount) || bookletCount < 1) return { valid: false, errors: ["bookletCount must be >= 1"] };
-  if (!isInt(pagesPerBooklet) || pagesPerBooklet < 1) return { valid: false, errors: ["pagesPerBooklet must be >= 1"] };
-
-  const pagesPerSheet = total.volume.pagesPerSheet;
-  const unit = unitPages(pagesPerSheet);
-  if (pagesPerBooklet % unit !== 0) return { valid: false, errors: ["pagesPerBooklet must be divisible by pagesPerSheet*2"] };
-
-  const a4PerBooklet = pagesPerBooklet / pagesPerSheet; // A4 sides per booklet
-  const foldsPerA4 = pagesPerSheet / 2;
-  const foldsPerBooklet = (pagesPerBooklet / unit) * foldsPerA4;
-
-  return {
-    valid: true,
-    errors: [],
-    derived: {
-      a4PerBooklet,
-      foldsPerBooklet,
-      pagesPerBooklet,
-      lastBookletPages: pagesPerBooklet,
-    },
-  };
-}
-
-/**
- * reckon({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit })
+ * reckon({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit })
  * Page distribution.
  *
  * Output structure:
+ * - bookletCount: computed signature count
  * - booklets: [{ index, front, back }]
  * - totalBlankPages: how many blank pages were added (0 when padToFit=false)
  */
-function reckon({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit }) {
-  const total = calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit });
+function reckon({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit }) {
+  const total = calcBooklet0({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit });
   if (!total.valid) return { valid: false, errors: total.errors || ["invalid volume"] };
 
   const unit = unitPages(pagesPerSheet);
   const paddedPgCount = total.volume.paddedPgCount;
+  const bookletCount = total.volume.bookletCount;
+
   const a4SheetsTotal = paddedPgCount / unit;
   const foldsPerA4 = pagesPerSheet / 2;
   const sheetsPerBooklet = pagesPerBooklet / unit;
-  const bookletMax = bookletCount;
 
   // 1-based arrays to match inspiration indexing.
   const prnDistrU = [];
   const pagesStrComU = [];
   const pagesStrCom = [];
 
-  for (let i1 = 1; i1 <= bookletMax; i1++) {
+  for (let i1 = 1; i1 <= bookletCount; i1++) {
     const offset = (i1 - 1) * pagesPerBooklet;
     prnDistrU[i1] = [];
 
-    const sheetsInThisBooklet = sheetsPerBooklet;
-    const pagesInThisBooklet = pagesPerBooklet;
-
-    for (let j1 = 1; j1 <= sheetsInThisBooklet; j1++) {
+    for (let j1 = 1; j1 <= sheetsPerBooklet; j1++) {
       prnDistrU[i1][j1] = [];
       for (let j2 = 1; j2 <= foldsPerA4; j2++) {
         prnDistrU[i1][j1][j2] = [];
 
         const j = j2 + (j1 - 1) * foldsPerA4;
-        const a = pagesInThisBooklet - (j - 1) * 2 + offset;
+        const a = pagesPerBooklet - (j - 1) * 2 + offset;
         const b = 1 + (j - 1) * 2 + offset;
         const c = 2 + (j - 1) * 2 + offset;
-        const d = pagesInThisBooklet - 1 - (j - 1) * 2 + offset;
+        const d = pagesPerBooklet - 1 - (j - 1) * 2 + offset;
 
         const row = [null, a, b, c, d];
         for (let k = 1; k <= 4; k++) {
@@ -173,16 +151,14 @@ function reckon({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFi
     }
   }
 
-  for (let i1 = 1; i1 <= bookletMax; i1++) {
+  for (let i1 = 1; i1 <= bookletCount; i1++) {
     pagesStrComU[i1] = [];
     pagesStrCom[i1] = [];
     pagesStrCom[i1][1] = "";
     pagesStrCom[i1][2] = "";
     pagesStrCom[i1][3] = "";
 
-    const sheetsInThisBooklet = sheetsPerBooklet;
-
-    for (let j1 = 1; j1 <= sheetsInThisBooklet; j1++) {
+    for (let j1 = 1; j1 <= sheetsPerBooklet; j1++) {
       pagesStrComU[i1][j1] = [];
       pagesStrComU[i1][j1][1] = "";
       pagesStrComU[i1][j1][2] = "";
@@ -212,27 +188,28 @@ function reckon({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFi
 
       pagesStrCom[i1][1] += pagesStrComU[i1][j1][1];
       pagesStrCom[i1][2] += pagesStrComU[i1][j1][2];
-      if (j1 < sheetsInThisBooklet) {
+      if (j1 < sheetsPerBooklet) {
         pagesStrCom[i1][1] += ",";
         pagesStrCom[i1][2] += ",";
       }
     }
 
     // Reverse sheet order for back side (matches original PagesStrCom[i1][3]).
-    for (let j1 = sheetsInThisBooklet; j1 >= 1; j1--) {
+    for (let j1 = sheetsPerBooklet; j1 >= 1; j1--) {
       pagesStrCom[i1][3] += pagesStrComU[i1][j1][2];
       if (j1 > 1) pagesStrCom[i1][3] += ",";
     }
   }
 
   const booklets = [];
-  for (let i1 = 1; i1 <= bookletMax; i1++) {
+  for (let i1 = 1; i1 <= bookletCount; i1++) {
     booklets.push({ index: i1, front: pagesStrCom[i1][1], back: pagesStrCom[i1][3] });
   }
 
   return {
     valid: true,
     errors: [],
+    bookletCount,
     prnDistrU,
     booklets,
     totalBlankPages: total.volume.totalBlankPages,
@@ -267,16 +244,6 @@ function a4ToPages(a4PerBooklet, pagesPerSheet) {
 }
 
 /**
- * suggestBookletCount(pgCount, pagesPerBooklet)
- * Returns the minimum booklet count to fit pgCount pages when each booklet has pagesPerBooklet pages.
- */
-function suggestBookletCount(pgCount, pagesPerBooklet) {
-  if (!isInt(pgCount) || pgCount < 0) return null;
-  if (!isInt(pagesPerBooklet) || pagesPerBooklet <= 0) return null;
-  return ceilDiv(pgCount, pagesPerBooklet);
-}
-
-/**
  * reverseOutput(pagesStrCom, bookletCount)
  * Returns a new reckon()-like output where back-side strings are reversed per booklet.
  * Front-side strings are unchanged.
@@ -308,7 +275,6 @@ function reverseOutput(pagesStrCom, bookletCount) {
 
 const api = {
   calcBooklet0,
-  calcBooklet1,
   reckon,
   pagesPerBookletToA4,
   a4ToPages,

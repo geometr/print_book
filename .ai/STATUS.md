@@ -4,14 +4,14 @@ update: after each work session
 owner: print_book
 ---
 # Status
-last_updated: 2026-03-17T22:51:14
+last_updated: 2026-03-17T23:38:05
 done:
   - src/index.html (single page UI)
   - src/css/style.css (styles)
   - src/js/calc.js (pure calc)
   - src/js/i18n.js (RU/EN strings + help)
   - src/js/book.js (DOM glue)
-  - tests/test_calc.js (50 tests, Node)
+  - tests/test_calc.js (53 tests, Node)
   - reverse-feed printer output mode
   - result labels update on language switch
   - help: rewritten (RU/EN, no internal links, printer photo placeholders)
@@ -22,6 +22,8 @@ done:
   - pad-to-fit all signatures (blank pages per signature)
   - 300-page defaults on load (pgCount=300, pps=4, booklets=10, pagesPerBooklet=32, padToFit=true)
   - pgCount change updates bookletCount only (pagesPerBooklet stable)
+  - bookletCount moved to computed results (input removed)
+  - simplified inputs: pgCount, pagesPerSheet, pagesPerBooklet, padToFit
 in_progress:
   - none
 blocked:

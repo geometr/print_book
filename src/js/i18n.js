@@ -13,7 +13,7 @@
   <ul>
     <li><b>Страниц в документе</b>: общее количество страниц.</li>
     <li><b>Страниц на лист</b>: 2 / 4 / 8 (на одной стороне).</li>
-  <li><b>Тетрадей</b> и <b>Страниц в тетради</b>: позволяют разбить объем на несколько тетрадей.</li>
+  <li><b>Страниц в тетради</b>: размер тетради. Количество тетрадей вычисляется автоматически.</li>
   <li><b>Добить пустыми страницами</b>: если включено, недостающие страницы в каждой тетради заполняются пустыми (0).</li>
     <li><b>Подача бумаги</b>: <b>Стандартная подача</b> или <b>Обратная подача бумаги</b> (см. ниже).</li>
   </ul>
@@ -49,7 +49,7 @@
 <h3>▶ Тетради</h3>
 <p>
   Практичный объем тетради около 40 страниц (примерно 8-10 четырехстраничных листиков-сгибов).
-  Если документ большой, разбивайте на несколько тетрадей (полями "Тетрадей" и "Листов A4 на тетрадь").
+  Если документ большой, увеличивайте "Страниц в тетради" или включайте добивку пустыми страницами.
 </p>
 
 <h3>▶ Печать обратной стороны (подача бумаги)</h3>
@@ -112,7 +112,7 @@
   <ul>
     <li><b>Document pages</b>: total pages in the document.</li>
     <li><b>Pages per sheet</b>: 2 / 4 / 8 (per side).</li>
-  <li><b>Booklets</b> and <b>Pages per signature</b>: split the volume into multiple signatures.</li>
+  <li><b>Pages per signature</b>: signature size. Number of signatures is computed automatically.</li>
   <li><b>Pad with blank pages</b>: if enabled, missing pages in each signature become blanks (0).</li>
     <li><b>Paper feed</b>: <b>Standard feed</b> or <b>Reverse paper feed</b> (see below).</li>
   </ul>
@@ -148,7 +148,7 @@
 <h3>▶ Booklets</h3>
 <p>
   A practical booklet size is about 40 pages (roughly 8-10 four-page fold units).
-  For large documents, split into multiple booklets using the booklet fields.
+  For large documents, adjust pages per signature or enable padding.
 </p>
 
 <h3>▶ Back Side Printing (Paper Feed)</h3>
@@ -212,8 +212,8 @@
       pagesPerSheetLabel: "Страниц на лист",
       feedStandard: "Стандартная подача",
       feedReverse: "Обратная подача бумаги",
-      bookletCountLabel: "Тетрадей (booklets)",
       a4PerBookletLabel: "Листов A4 на тетрадь",
+      numberOfSignatures: "Количество тетрадей",
       pagesPerSignature: "Страниц в тетради",
       hintPagesPerBooklet:
         "Типичная тетрадь: 8, 16 или 32 стр.\nДомашний степлер: до 30–40 стр. (15–20 листов 80г).\nНитками: рекомендуется 16–32 стр. на тетрадь.\nНесколько тетрадей сшиваются в блок для толстых книг.",
@@ -270,8 +270,8 @@
       pagesPerSheetLabel: "Pages per sheet",
       feedStandard: "Standard feed",
       feedReverse: "Reverse paper feed",
-      bookletCountLabel: "Booklets (signatures)",
       a4PerBookletLabel: "A4 sheets per booklet",
+      numberOfSignatures: "Number of signatures",
       pagesPerSignature: "Pages per signature",
       hintPagesPerBooklet:
         "Typical signature: 8, 16 or 32 pages.\nHome stapler: up to 30–40 pages (15–20 sheets, 80gsm).\nHand-sewn: 16–32 pages per signature recommended.\nMultiple signatures are sewn together for thick books.",

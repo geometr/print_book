@@ -216,7 +216,7 @@
     }
   }
 
-  function validateInputs({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit }) {
+  function validateInputs({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit }) {
     const errors = [];
     const recs = [];
 
@@ -251,37 +251,21 @@
       return { ok: false, errors, recs };
     }
 
-    if (!Number.isInteger(bookletCount)) {
-      errors.push(t("errBookletCountInt"));
-      return { ok: false, errors, recs };
-    }
-
-    if (bookletCount < 1) {
-      errors.push(fmt("errBookletMin", { min: 1 }));
-      return { ok: false, errors, recs };
-    }
-
     if (typeof padToFit !== "boolean") {
       errors.push("padToFit must be boolean");
       return { ok: false, errors, recs };
     }
 
-    const capacity = bookletCount * pagesPerBooklet;
-    const suggested = window.Calc.suggestBookletCount(pgCount, pagesPerBooklet);
-
-    if (padToFit) {
-      if (capacity < pgCount) {
-        errors.push(t("errCapacityTooSmall"));
-        if (suggested !== null) recs.push(fmt("recSuggestedBooklets", { n: suggested }));
-        return { ok: false, errors, recs };
-      }
-      return { ok: true, errors: [], recs: [] };
+    const bookletCount = window.Calc.suggestBookletCount(pgCount, pagesPerBooklet);
+    if (!Number.isInteger(bookletCount) || bookletCount < 1) {
+      errors.push(t("errCapacityTooSmall"));
+      return { ok: false, errors, recs };
     }
 
-    if (capacity !== pgCount) {
+    const capacity = bookletCount * pagesPerBooklet;
+    if (!padToFit && capacity !== pgCount) {
       errors.push(fmt("errExactVolume", { expected: capacity }));
       recs.push(t("recEnablePadToFit"));
-      if (suggested !== null) recs.push(fmt("recSuggestedBooklets", { n: suggested }));
       return { ok: false, errors, recs };
     }
 
@@ -290,7 +274,6 @@
 
   function onPagesPerBookletChange() {
     const pagesPerSheet = toInt(byId("pagesPerSheet").value);
-    const pgCount = toInt(byId("pgCount").value);
     const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
     updatePagesPerBookletAdvisory(pagesPerBooklet);
 
@@ -302,23 +285,10 @@
     }
 
     setFieldError("pagesPerBookletError", "");
-    const suggested = window.Calc.suggestBookletCount(pgCount, pagesPerBooklet);
-    if (Number.isInteger(suggested) && suggested >= 1) {
-      setInputValue("bookletCount", suggested);
-    }
     recalc();
   }
 
   function onPgCountChange() {
-    const pgCount = toInt(byId("pgCount").value);
-    const pagesPerSheet = toInt(byId("pagesPerSheet").value);
-    const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
-
-    if (Number.isInteger(pgCount) && pgCount >= 0 && validatePagesPerSheet(pagesPerSheet) && Number.isInteger(pagesPerBooklet) && pagesPerBooklet > 0) {
-      const suggested = window.Calc.suggestBookletCount(pgCount, pagesPerBooklet);
-      if (Number.isInteger(suggested) && suggested >= 1) setInputValue("bookletCount", suggested);
-    }
-
     recalc();
   }
 
@@ -345,9 +315,6 @@
     setInputValue("pagesPerBooklet", pagesPerBooklet);
     setFieldError("pagesPerBookletError", "");
     updatePagesPerBookletAdvisory(pagesPerBooklet);
-
-    const suggested = window.Calc.suggestBookletCount(pgCount, pagesPerBooklet);
-    if (Number.isInteger(suggested) && suggested >= 1) setInputValue("bookletCount", suggested);
 
     recalc();
   }
@@ -390,7 +357,6 @@
   function recalc() {
     const pgCount = toInt(byId("pgCount").value);
     const pagesPerSheet = toInt(byId("pagesPerSheet").value);
-    const bookletCount = toInt(byId("bookletCount").value);
     const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
     const padToFit = byId("padToFit").checked;
     const feedMode = document.querySelector('input[name="feedMode"]:checked')?.value || "standard";
@@ -398,12 +364,13 @@
     updatePagesPerBookletAdvisory(pagesPerBooklet);
 
     const validationEl = byId("validationMessage");
-    const v = validateInputs({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit });
+    const v = validateInputs({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit });
     if (!v.ok) {
       validationEl.className = "derived__v danger";
       setText(validationEl, t("invalid"));
       setValidationDetails(v);
       setText(byId("a4Total"), "-");
+      setText(byId("bookletCountValue"), "-");
       setText(byId("foldsTotal"), "-");
       setText(byId("a4PerBookletValue"), "-");
       setText(byId("lastBookletPages"), "-");
@@ -416,8 +383,9 @@
     setText(validationEl, t("valid"));
     setValidationDetails({ errors: [], recs: [] });
 
-    const r0 = window.Calc.calcBooklet0({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit });
+    const r0 = window.Calc.calcBooklet0({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit });
     setText(byId("a4Total"), r0.derived.a4Total);
+    setText(byId("bookletCountValue"), r0.volume.bookletCount);
     setText(byId("foldsTotal"), r0.derived.foldsTotal);
 
     const a4PerBooklet = window.Calc.pagesPerBookletToA4(pagesPerBooklet, pagesPerSheet);
@@ -432,7 +400,7 @@
       setText(byId("blankPagesAdded"), "");
     }
 
-    const rr = window.Calc.reckon({ pgCount, pagesPerSheet, bookletCount, pagesPerBooklet, padToFit });
+    const rr = window.Calc.reckon({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit });
     if (!rr.valid) {
       setValidationDetails({ errors: [t("invalid")], recs: [] });
       byId("results").innerHTML = "";
@@ -441,7 +409,7 @@
 
     let output = rr;
     if (feedMode === "reverse") {
-      const rev = window.Calc.reverseOutput(rr, bookletCount);
+      const rev = window.Calc.reverseOutput(rr, rr.bookletCount);
       if (rev.valid) output = rev;
     }
 
@@ -471,9 +439,6 @@
 
     byId("pagesPerSheet").addEventListener("change", onPagesPerSheetChange);
     byId("pagesPerSheet").addEventListener("input", onPagesPerSheetChange);
-
-    byId("bookletCount").addEventListener("input", recalc);
-    byId("bookletCount").addEventListener("change", recalc);
 
     byId("pagesPerBooklet").addEventListener("input", onPagesPerBookletChange);
     byId("pagesPerBooklet").addEventListener("change", onPagesPerBookletChange);
