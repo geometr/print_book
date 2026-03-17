@@ -3,7 +3,42 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>print_book</title>
+    <title>Калькулятор печати книги тетрадями — порядок страниц онлайн</title>
+    <meta
+      name="description"
+      content="Бесплатный калькулятор для расчёта порядка страниц при печати книги или брошюры тетрадями на обычном принтере. Поддержка 2, 4 и 8 страниц на лист."
+      id="meta-description"
+    />
+    <meta
+      name="keywords"
+      content="печать книги тетрадями, порядок страниц для печати, калькулятор печати брошюры, печать буклета онлайн"
+      id="meta-keywords"
+    />
+
+    <link rel="canonical" href="" id="canonical-url" />
+    <link rel="alternate" hreflang="ru" href="" id="alt-ru" />
+    <link rel="alternate" hreflang="en" href="" id="alt-en" />
+
+    <meta property="og:title" content="" id="og-title" />
+    <meta property="og:description" content="" id="og-description" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="" id="og-url" />
+    <meta property="og:locale" content="" id="og-locale" />
+    <meta property="og:locale:alternate" content="" id="og-locale-alt" />
+
+    <script type="application/ld+json" id="jsonld">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Калькулятор печати книги тетрадями",
+        "alternateName": "Booklet Page Order Calculator",
+        "description": "Бесплатный калькулятор для расчёта порядка страниц при печати книги или брошюры тетрадями на обычном принтере. Поддержка 2, 4 и 8 страниц на лист.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "inLanguage": ["ru", "en"]
+      }
+    </script>
     <link rel="stylesheet" href="css/style.css" />
     <script defer src="js/i18n.js"></script>
     <script defer src="js/calc.js"></script>
@@ -11,7 +46,7 @@
   </head>
   <body>
     <header class="topbar">
-      <div class="topbar__title" data-i18n="title"></div>
+      <h1 class="topbar__title" data-i18n="h1"></h1>
       <div class="topbar__actions">
         <button type="button" class="btn" id="lang-ru">RU</button>
         <button type="button" class="btn" id="lang-en">EN</button>
@@ -92,14 +127,19 @@
 
       <section class="card">
         <div class="card__header">
-          <div class="card__title" data-i18n="resultsTitle"></div>
+          <h2 class="card__title" data-i18n="resultsTitle"></h2>
           <button type="button" class="btn" id="help-toggle"></button>
         </div>
         <div id="results"></div>
         <div class="help" id="help" hidden>
+          <h2 class="help__title" data-i18n="helpTitle"></h2>
           <div id="help-content"></div>
         </div>
       </section>
     </main>
+
+    <footer class="footer">
+      <div class="footer__text" data-i18n="footerText"></div>
+    </footer>
   </body>
 </html>

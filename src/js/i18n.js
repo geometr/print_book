@@ -202,6 +202,11 @@
 
   const I18N = {
     ru: {
+      metaTitle: "Калькулятор печати книги тетрадями — порядок страниц онлайн",
+      metaDescription:
+        "Бесплатный калькулятор для расчёта порядка страниц при печати книги или брошюры тетрадями на обычном принтере. Поддержка 2, 4 и 8 страниц на лист.",
+      metaKeywords: "печать книги тетрадями, порядок страниц для печати, калькулятор печати брошюры, печать буклета онлайн",
+      h1: "Калькулятор печати книги тетрадями",
       title: "Печать книг (калькулятор)",
       pgCountLabel: "Страниц в документе",
       pagesPerSheetLabel: "Страниц на лист",
@@ -237,11 +242,18 @@
       errA4PerBookletMin: "Минимум листов A4 на тетрадь: {min}.",
       errA4PerBookletTooLarge: "Слишком много листов A4 на тетрадь для текущего объема.",
       recMaxA4PerBooklet: "При {booklets} тетрадях максимум листов A4 на тетрадь: {max}.",
+      helpTitle: "Справка",
+      footerText: "Бесплатный инструмент. Без регистрации. Работает офлайн.",
       helpToggleClosed: "Справка",
       helpToggleOpen: "Скрыть справку",
       helpHtml: helpRu,
     },
     en: {
+      metaTitle: "Booklet Page Order Calculator — Print Book with Signatures",
+      metaDescription:
+        "Free calculator for booklet printing page order. Supports 2, 4 and 8 pages per sheet, multiple signatures. No install, works in browser.",
+      metaKeywords: "booklet page order calculator, print book signatures, booklet printing calculator, saddle stitch imposition",
+      h1: "Booklet Page Order Calculator",
       title: "Booklet Print Calculator",
       pgCountLabel: "Document pages",
       pagesPerSheetLabel: "Pages per sheet",
@@ -277,6 +289,8 @@
       errA4PerBookletMin: "Minimum A4 sheets per booklet: {min}.",
       errA4PerBookletTooLarge: "Too many A4 sheets per booklet for current volume.",
       recMaxA4PerBooklet: "With {booklets} booklets, max A4 sheets per booklet: {max}.",
+      helpTitle: "Help",
+      footerText: "Free tool. No registration. Works offline.",
       helpToggleClosed: "Help",
       helpToggleOpen: "Hide help",
       helpHtml: helpEn,

@@ -53,6 +53,73 @@
     byId("help-content").innerHTML = window.I18N[state.lang].helpHtml;
   }
 
+  function getCanonicalUrl() {
+    return window.location.origin + window.location.pathname;
+  }
+
+  function setUrlLang(lang) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("lang", lang);
+    // No reload.
+    window.history.replaceState({}, "", url.toString());
+  }
+
+  function applySeo() {
+    const canonical = getCanonicalUrl();
+    const lang = state.lang;
+
+    document.title = t("metaTitle");
+    const metaDesc = document.getElementById("meta-description");
+    const metaKw = document.getElementById("meta-keywords");
+    if (metaDesc) metaDesc.setAttribute("content", t("metaDescription"));
+    if (metaKw) metaKw.setAttribute("content", t("metaKeywords"));
+
+    const canonicalLink = document.getElementById("canonical-url");
+    if (canonicalLink) canonicalLink.setAttribute("href", canonical);
+
+    const altRu = document.getElementById("alt-ru");
+    const altEn = document.getElementById("alt-en");
+    if (altRu) altRu.setAttribute("href", canonical + "?lang=ru");
+    if (altEn) altEn.setAttribute("href", canonical + "?lang=en");
+
+    const ogTitle = document.getElementById("og-title");
+    const ogDesc = document.getElementById("og-description");
+    const ogUrl = document.getElementById("og-url");
+    const ogLocale = document.getElementById("og-locale");
+    const ogLocaleAlt = document.getElementById("og-locale-alt");
+    if (ogTitle) ogTitle.setAttribute("content", t("metaTitle"));
+    if (ogDesc) ogDesc.setAttribute("content", t("metaDescription"));
+    if (ogUrl) ogUrl.setAttribute("content", canonical);
+    if (ogLocale) ogLocale.setAttribute("content", lang === "en" ? "en_US" : "ru_RU");
+    if (ogLocaleAlt) ogLocaleAlt.setAttribute("content", lang === "en" ? "ru_RU" : "en_US");
+
+    const jsonldEl = document.getElementById("jsonld");
+    if (jsonldEl) {
+      const jsonld = {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        name: "Калькулятор печати книги тетрадями",
+        alternateName: "Booklet Page Order Calculator",
+        description: t("metaDescription"),
+        applicationCategory: "UtilitiesApplication",
+        operatingSystem: "Any",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        inLanguage: ["ru", "en"],
+        url: canonical,
+      };
+      jsonldEl.textContent = JSON.stringify(jsonld);
+    }
+  }
+
+  function setLang(lang) {
+    state.lang = lang === "en" ? "en" : "ru";
+    document.documentElement.lang = state.lang;
+    setUrlLang(state.lang);
+    applyI18n();
+    applySeo();
+    recalc();
+  }
+
   function setValidationDetails({ errors, recs }) {
     const el = byId("validationDetails");
     el.innerHTML = "";
@@ -262,16 +329,16 @@
   }
 
   function init() {
-    byId("lang-ru").addEventListener("click", () => {
-      state.lang = "ru";
-      applyI18n();
-      recalc();
-    });
-    byId("lang-en").addEventListener("click", () => {
-      state.lang = "en";
-      applyI18n();
-      recalc();
-    });
+    const urlLang = new URLSearchParams(window.location.search).get("lang");
+    if (urlLang === "en" || urlLang === "ru") {
+      state.lang = urlLang;
+    } else {
+      // Always keep explicit lang param in the URL.
+      setUrlLang(state.lang);
+    }
+
+    byId("lang-ru").addEventListener("click", () => setLang("ru"));
+    byId("lang-en").addEventListener("click", () => setLang("en"));
 
     byId("help-toggle").addEventListener("click", () => {
       state.helpOpen = !state.helpOpen;
@@ -289,6 +356,7 @@
     }
 
     applyI18n();
+    applySeo();
     recalc();
   }
 
