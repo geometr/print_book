@@ -129,10 +129,12 @@
     byId("lang-ru").addEventListener("click", () => {
       state.lang = "ru";
       applyI18n();
+      recalc();
     });
     byId("lang-en").addEventListener("click", () => {
       state.lang = "en";
       applyI18n();
+      recalc();
     });
 
     byId("help-toggle").addEventListener("click", () => {
