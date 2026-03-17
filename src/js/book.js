@@ -87,6 +87,7 @@
     lang: "ru",
     helpOpen: false,
     theme: "light",
+    printState: {},
   };
 
   function t(key) {
@@ -350,42 +351,184 @@
     recalc();
   }
 
+  function clearPrintState() {
+    state.printState = {};
+  }
+
+  function ensurePrintState(bookletCount) {
+    const next = {};
+    for (let i = 0; i < bookletCount; i++) {
+      next[i] = { front: false, back: false };
+    }
+    state.printState = next;
+  }
+
+  function countProgress(bookletCount) {
+    let done = 0;
+    const total = bookletCount * 2;
+    for (let i = 0; i < bookletCount; i++) {
+      const st = state.printState[i] || { front: false, back: false };
+      if (st.front) done++;
+      if (st.back) done++;
+    }
+    return { done, total };
+  }
+
+  function updateProgressIndicator(bookletCount) {
+    const el = byId("printProgress");
+    if (!el) return;
+    const p = countProgress(bookletCount);
+    if (p.total > 0 && p.done === p.total) {
+      el.className = "progress progress--done";
+      el.textContent = t("allDone");
+      return;
+    }
+    el.className = "progress";
+    el.textContent = fmt("progressLabel", { done: p.done, total: p.total });
+  }
+
+  function setSignatureDoneStyles(sigIndex) {
+    const st = state.printState[sigIndex];
+    const sigEl = document.querySelector('[data-sig-index="' + String(sigIndex) + '"]');
+    if (!sigEl) return;
+    const titleEl = sigEl.querySelector(".sig__title");
+    const complete = !!(st && st.front && st.back);
+    if (complete) {
+      sigEl.classList.add("sig--done");
+      if (titleEl) {
+        titleEl.classList.add("sig__title--done");
+        titleEl.textContent = "✓ " + fmt("signatureN", { n: sigIndex + 1 });
+      }
+    } else {
+      sigEl.classList.remove("sig--done");
+      if (titleEl) {
+        titleEl.classList.remove("sig__title--done");
+        titleEl.textContent = fmt("signatureN", { n: sigIndex + 1 });
+      }
+    }
+  }
+
+  function setRowDoneStyles(sigIndex, side) {
+    const row = document.querySelector(
+      '[data-sig-index="' + String(sigIndex) + '"][data-side="' + String(side) + '"]',
+    );
+    if (!row) return;
+    const st = state.printState[sigIndex];
+    const done = !!(st && st[side] === true);
+    if (done) row.classList.add("sig-row--done");
+    else row.classList.remove("sig-row--done");
+  }
+
+  function copyToClipboard(text) {
+    const s = String(text || "");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(s);
+    }
+    return new Promise((resolve, reject) => {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = s;
+        ta.setAttribute("readonly", "readonly");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (!ok) return reject(new Error("copy failed"));
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
   function renderResults(result) {
     const container = byId("results");
     container.innerHTML = "";
 
-    for (const b of result.booklets) {
-      const wrap = document.createElement("div");
-      wrap.className = "booklet";
+    ensurePrintState(result.booklets.length);
+    updateProgressIndicator(result.booklets.length);
+
+    for (let i = 0; i < result.booklets.length; i++) {
+      const b = result.booklets[i];
+
+      const sig = document.createElement("div");
+      sig.className = "sig";
+      sig.setAttribute("data-sig-index", String(i));
+
+      const header = document.createElement("div");
+      header.className = "sig__header";
 
       const title = document.createElement("div");
-      title.className = "booklet__title";
-      title.textContent = t("booklet") + " " + String(b.index);
-      wrap.appendChild(title);
+      title.className = "sig__title";
+      title.textContent = fmt("signatureN", { n: i + 1 });
+      header.appendChild(title);
 
-      const l1 = document.createElement("div");
-      l1.className = "booklet__label";
-      l1.textContent = t("side1");
-      wrap.appendChild(l1);
+      sig.appendChild(header);
 
-      const p1 = document.createElement("pre");
-      p1.textContent = b.front;
-      wrap.appendChild(p1);
+      function makeRow(side, labelKey, pages) {
+        const row = document.createElement("div");
+        row.className = "sig-row";
+        row.setAttribute("data-sig-index", String(i));
+        row.setAttribute("data-side", side);
 
-      const l2 = document.createElement("div");
-      l2.className = "booklet__label";
-      l2.textContent = t("side2");
-      wrap.appendChild(l2);
+        const label = document.createElement("div");
+        label.className = "sig-row__label";
+        label.textContent = t(labelKey) + ":";
+        row.appendChild(label);
 
-      const p2 = document.createElement("pre");
-      p2.textContent = b.back;
-      wrap.appendChild(p2);
+        const pagesEl = document.createElement("div");
+        pagesEl.className = "sig-row__pages";
+        pagesEl.textContent = pages;
+        row.appendChild(pagesEl);
 
-      container.appendChild(wrap);
+        const copyBtn = document.createElement("button");
+        copyBtn.type = "button";
+        copyBtn.className = "mini-btn";
+        copyBtn.textContent = t("copyPages");
+        copyBtn.title = t("copyTooltip");
+        copyBtn.addEventListener("click", () => {
+          copyToClipboard(pages)
+            .then(() => {
+              copyBtn.textContent = t("copied");
+              copyBtn.disabled = true;
+              setTimeout(() => {
+                copyBtn.disabled = false;
+                copyBtn.textContent = t("copyPages");
+              }, 2000);
+            })
+            .catch(() => {
+              // No-op: clipboard may be blocked by browser permissions.
+            });
+        });
+        row.appendChild(copyBtn);
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.className = "sig-check";
+        cb.checked = false;
+        cb.addEventListener("change", () => {
+          if (!state.printState[i]) state.printState[i] = { front: false, back: false };
+          state.printState[i][side] = !!cb.checked;
+          setRowDoneStyles(i, side);
+          setSignatureDoneStyles(i);
+          updateProgressIndicator(result.booklets.length);
+        });
+        row.appendChild(cb);
+
+        return row;
+      }
+
+      sig.appendChild(makeRow("front", "frontSide", b.front));
+      sig.appendChild(makeRow("back", "backSide", b.back));
+
+      container.appendChild(sig);
     }
   }
 
   function recalc() {
+    clearPrintState();
     const pgCount = toInt(byId("pgCount").value);
     const pagesPerSheet = toInt(getCheckedValue("pagesPerSheet", "4"));
     const pagesPerBooklet = toInt(byId("pagesPerBooklet").value);
@@ -406,6 +549,7 @@
       setText(byId("a4PerBookletValue"), "-");
       setText(byId("lastBookletPages"), "-");
       byId("blankPagesRow").hidden = true;
+      setText(byId("printProgress"), "");
       byId("results").innerHTML = "";
       return;
     }
@@ -434,6 +578,7 @@
     const rr = window.Calc.reckon({ pgCount, pagesPerSheet, pagesPerBooklet, padToFit });
     if (!rr.valid) {
       setValidationDetails({ errors: [t("invalid")], recs: [] });
+      setText(byId("printProgress"), "");
       byId("results").innerHTML = "";
       return;
     }

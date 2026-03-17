@@ -4,7 +4,7 @@ update: after each work session
 owner: print_book
 ---
 # Status
-last_updated: 2026-03-18T00:29:11
+last_updated: 2026-03-18T00:45:19
 done:
   - src/index.html (single page UI)
   - src/css/style.css (styles)
@@ -31,6 +31,8 @@ done:
   - clean system UI (no gradients/shadows)
   - light/dark theme toggle (localStorage + prefers-color-scheme)
   - large tap targets (44px) and high contrast layout
+  - print progress tracking per signature side (ephemeral)
+  - copy buttons for front/back page lists
 in_progress:
   - none
 blocked:
