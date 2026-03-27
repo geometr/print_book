@@ -446,6 +446,10 @@
   function renderResults(result) {
     const container = byId("results");
     container.innerHTML = "";
+    const resultsSection = byId("results-section");
+    if (resultsSection) {
+      resultsSection.setAttribute("data-print-title", t("printTitle"));
+    }
 
     ensurePrintState(result.booklets.length);
     updateProgressIndicator(result.booklets.length);
@@ -454,11 +458,11 @@
       const b = result.booklets[i];
 
       const sig = document.createElement("div");
-      sig.className = "sig";
+      sig.className = "sig signature-block";
       sig.setAttribute("data-sig-index", String(i));
 
       const header = document.createElement("div");
-      header.className = "sig__header";
+      header.className = "sig__header signature-header";
 
       const title = document.createElement("div");
       title.className = "sig__title";
@@ -469,7 +473,7 @@
 
       function makeRow(side, labelKey, pages) {
         const row = document.createElement("div");
-        row.className = "sig-row";
+        row.className = "sig-row signature-row";
         row.setAttribute("data-sig-index", String(i));
         row.setAttribute("data-side", side);
 
@@ -479,13 +483,13 @@
         row.appendChild(label);
 
         const pagesEl = document.createElement("div");
-        pagesEl.className = "sig-row__pages";
+        pagesEl.className = "sig-row__pages page-string";
         pagesEl.textContent = pages;
         row.appendChild(pagesEl);
 
         const copyBtn = document.createElement("button");
         copyBtn.type = "button";
-        copyBtn.className = "mini-btn";
+        copyBtn.className = "mini-btn copy-btn";
         copyBtn.textContent = t("copyPages");
         copyBtn.title = t("copyTooltip");
         copyBtn.addEventListener("click", () => {
@@ -632,6 +636,7 @@
     for (const id of ["feed-standard", "feed-reverse"]) {
       byId(id).addEventListener("change", recalc);
     }
+    byId("print-results-btn").addEventListener("click", () => window.print());
 
     applyI18n();
     applySeo();

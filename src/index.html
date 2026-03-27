@@ -54,7 +54,7 @@
       <header class="app-header">
         <h1 class="app-header__title" data-i18n="h1"></h1>
         <div class="app-header__controls">
-          <div class="pill-group" role="group" aria-label="language">
+          <div class="pill-group lang-switcher" role="group" aria-label="language">
             <label class="pill">
               <input type="radio" name="lang" id="lang-ru" value="ru" checked />
               <span>RU</span>
@@ -64,12 +64,12 @@
               <span>EN</span>
             </label>
           </div>
-          <button type="button" class="icon-btn" id="theme-toggle" aria-label="Toggle theme"></button>
+          <button type="button" class="icon-btn theme-switcher" id="theme-toggle" aria-label="Toggle theme"></button>
         </div>
       </header>
 
       <main>
-        <section class="section">
+        <section class="section" id="inputs-section">
           <h2 class="section-title" data-i18n="title"></h2>
 
           <div class="form">
@@ -131,8 +131,10 @@
           </div>
         </section>
 
-        <section class="section">
+        <section class="section" id="results-section">
           <h2 class="section-title" data-i18n="resultsTitle"></h2>
+
+          <button type="button" class="full-btn print-btn" id="print-results-btn" data-i18n="printBtn"></button>
 
           <div class="results-box" aria-live="polite">
             <div class="result-row">
@@ -173,11 +175,11 @@
             </div>
           </div>
 
-          <div class="progress" id="printProgress" aria-live="polite"></div>
+          <div class="progress progress-indicator" id="printProgress" aria-live="polite"></div>
           <div id="results"></div>
 
           <button type="button" class="full-btn" id="help-toggle"></button>
-          <div class="help" id="help" hidden>
+          <div class="help help-section" id="help" hidden>
             <h2 data-i18n="helpTitle"></h2>
             <div id="help-content"></div>
           </div>

@@ -6,7 +6,7 @@ owner: print_book
 
 # Status
 
-last_updated: 2026-03-18T00:53:25
+last_updated: 2026-03-27T17:41:45.4507882+03:00
 
 ## Done
 
@@ -24,6 +24,7 @@ last_updated: 2026-03-18T00:53:25
 - help section collapsible RU/EN
 - placeholder images: favicon, OG, apple-touch-icon
 - 53 tests passing
+- print button for results, print CSS, checkbox print styling
 
 ## In progress
 
